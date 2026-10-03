@@ -1,0 +1,1940 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" data-theme="gold" data-mode="night" data-board="felt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>YanivNest · יניב</title>
+<meta name="description" content="יניב — משחק הקלפים הישראלי: מול המחשב, שניים בטלפון אחד, ואונליין עם חברים וקול.">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:title" content="YanivNest · יניב">
+<meta property="og:description" content="יניב מול המחשב, בטלפון אחד או אונליין עם חברים — עם לחץ-ודבר והודעות קוליות.">
+<meta property="og:image" content="icon-512.png">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ---------------- tokens: app theme (data-theme × data-mode) ---------------- */
+:root{
+  --bg:#070707; --panel:#121212; --panel2:#1a1a1a; --line:#2c2a24; --ink:#f3efe4; --muted:#a39d8c;
+  --acc:#d4a940; --acc2:#f0cd6e; --accInk:#140f02; --ok:#46b46e; --bad:#e0584f;
+  --felt1:#1f6b45; --felt2:#0f4029; --feltLine:rgba(255,255,255,.10); --feltInk:#f4f1e6;
+  --cardFace:#fdfbf4; --cardEdge:#cfcac0; --red:#c4262e; --blk:#141414;
+  --back1:#141414; --back2:#d4a940;
+  --r:14px; --disp:'Secular One','Rubik',system-ui,sans-serif; --body:'Rubik',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*,*::before,*::after{box-sizing:inherit}
+[data-theme="silver"]{--acc:#c9ced6;--acc2:#eef1f5;--accInk:#0d0f12;--line:#2a2d33;--back2:#c9ced6}
+[data-theme="emerald"]{--acc:#3fbf7f;--acc2:#7fe0ae;--accInk:#03140b;--line:#1f3329;--back2:#3fbf7f}
+[data-theme="ruby"]{--acc:#e0566a;--acc2:#f598a6;--accInk:#1a0408;--line:#3a2328;--back2:#e0566a}
+[data-theme="ocean"]{--acc:#4aa8e8;--acc2:#97d0f6;--accInk:#03111c;--line:#1f2d3a;--back2:#4aa8e8}
+[data-mode="day"]{--bg:#f4f2ec;--panel:#ffffff;--panel2:#f0ede5;--line:#d9d3c4;--ink:#17150f;--muted:#6b6455;--back1:#2a261c}
+[data-mode="day"][data-theme="gold"]{--acc:#a8801c;--acc2:#c99b2c;--accInk:#fff}
+[data-mode="day"][data-theme="silver"]{--acc:#5c6573;--acc2:#7d8796;--accInk:#fff}
+[data-mode="day"][data-theme="emerald"]{--acc:#1f8a55;--acc2:#2ea96b;--accInk:#fff}
+[data-mode="day"][data-theme="ruby"]{--acc:#b8344a;--acc2:#d14d62;--accInk:#fff}
+[data-mode="day"][data-theme="ocean"]{--acc:#1f6fa8;--acc2:#2f8acb;--accInk:#fff}
+/* table colour is its own setting (written after the themes, same specificity → it wins) */
+[data-board="felt"]{--felt1:#1f6b45;--felt2:#0f4029;--feltInk:#f4f1e6;--feltLine:rgba(255,255,255,.10)}
+[data-board="wood"]{--felt1:#8a5a32;--felt2:#5a3519;--feltInk:#fff6e8;--feltLine:rgba(255,235,200,.14)}
+[data-board="contrast"]{--felt1:#0d3b8c;--felt2:#071f4d;--feltInk:#ffffff;--feltLine:rgba(255,255,255,.22);--cardEdge:#000;--red:#d0021b;--blk:#000}
+[data-board="theme"]{--felt1:var(--panel2);--felt2:var(--bg);--feltInk:var(--ink);--feltLine:var(--line)}
+
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:16px/1.5 var(--body);-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acc2);outline-offset:2px}
+input,select{font:inherit;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+h1,h2,h3{font-family:var(--disp);font-weight:400;margin:0;line-height:1.15}
+.ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+.muted{color:var(--muted)}
+.hide{display:none!important}
+
+/* ---------------- screens ---------------- */
+.scr{display:none;min-height:100vh;min-height:100dvh;flex-direction:column}
+.scr.on{display:flex;animation:scrIn .18s ease-out}
+@keyframes scrIn{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+.bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel)}
+.bar h2{font-size:22px;flex:1}
+.back{min-width:48px;height:44px;border-radius:12px;border:1.5px solid var(--acc);background:transparent;color:var(--acc);font-size:20px;font-weight:700}
+.wrap{padding:16px;max-width:640px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.card h3{font-size:19px;margin-bottom:8px}
+.btn{border:1.5px solid var(--acc);background:transparent;color:var(--acc);border-radius:12px;padding:12px 16px;font-weight:700;min-height:48px}
+.btn.main{background:var(--acc);color:var(--accInk);font-size:18px}
+.btn.wide{width:100%}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.small{min-height:38px;padding:6px 12px;font-size:14px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.row>*{flex:1}
+.seg{display:flex;border:1.5px solid var(--line);border-radius:12px;overflow:hidden}
+.seg button{flex:1;border:0;background:transparent;padding:10px 6px;min-height:44px;font-weight:500;color:var(--muted)}
+.seg button.on{background:var(--acc);color:var(--accInk);font-weight:700}
+label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--muted)}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.sw:last-child{border-bottom:0}
+.sw input[type=checkbox]{width:26px;height:26px;accent-color:var(--acc)}
+.toast{position:fixed;inset-inline:12px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:90;background:var(--panel);border:1px solid var(--acc);color:var(--ink);padding:12px 16px;border-radius:12px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.5);opacity:0;transform:translateY(20px);transition:.2s;pointer-events:none}
+.toast.on{opacity:1;transform:none}
+.badge{text-align:center;font-size:12px;color:var(--muted);padding:18px 0 8px}
+.badge b{color:var(--acc);font-weight:700}
+
+/* ---------------- home ---------------- */
+#home .hero{padding:28px 18px 10px;text-align:center;position:relative}
+.logo{font-family:var(--disp);font-size:78px;line-height:1;color:var(--acc);letter-spacing:1px;display:inline-block;transform:rotate(-4deg);border:4px solid var(--acc);border-radius:18px;padding:6px 22px 12px;margin-top:8px}
+.logo small{display:block;font-size:15px;letter-spacing:3px;font-family:var(--body);font-weight:700;margin-top:-2px}
+.fan{display:flex;justify-content:center;margin:22px 0 6px;height:92px}
+.fan .pc{margin-inline:-14px}
+.fan .pc:nth-child(1){transform:rotate(-16deg) translateY(10px)}
+.fan .pc:nth-child(2){transform:rotate(-6deg) translateY(2px)}
+.fan .pc:nth-child(3){transform:rotate(6deg) translateY(2px)}
+.fan .pc:nth-child(4){transform:rotate(16deg) translateY(10px)}
+.modes{display:grid;gap:12px}
+.mode{display:flex;align-items:center;gap:14px;text-align:start;background:var(--panel);border:1.5px solid var(--line);border-radius:16px;padding:16px;min-height:76px}
+.mode .ic{font-size:30px;width:52px;height:52px;display:grid;place-items:center;border-radius:14px;background:var(--panel2);flex:none}
+.mode b{display:block;font-size:19px;font-family:var(--disp);font-weight:400}
+.mode span{font-size:14px;color:var(--muted)}
+.mode.prime{border-color:var(--acc)}
+.mode.resume{border-style:dashed;border-color:var(--acc)}
+.tools{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.tools button{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 4px;min-height:64px;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--muted)}
+.tools button i{font-style:normal;font-size:22px}
+.quickset{position:absolute;top:10px;inset-inline-end:12px;display:flex;gap:6px}
+.quickset button{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--panel);font-size:18px}
+
+/* ---------------- playing cards ---------------- */
+.pc{--w:64px;width:var(--w);height:calc(var(--w)*1.42);border-radius:calc(var(--w)*.11);background:var(--cardFace);border:1px solid var(--cardEdge);position:relative;flex:none;color:var(--blk);box-shadow:0 2px 6px rgba(0,0,0,.35);user-select:none;-webkit-user-select:none;font-family:Georgia,'Times New Roman',serif;direction:ltr}
+.pc.red{color:var(--red)}
+.pc .ix{position:absolute;top:calc(var(--w)*.05);left:calc(var(--w)*.08);text-align:center;line-height:.95;font-weight:700;font-size:calc(var(--w)*.30)}
+.pc .ix s{display:block;text-decoration:none;font-size:calc(var(--w)*.26)}
+.pc .ix.b{top:auto;left:auto;bottom:calc(var(--w)*.05);right:calc(var(--w)*.08);transform:rotate(180deg)}
+.pc .pip{position:absolute;inset:0;display:grid;place-items:center;font-size:calc(var(--w)*.62);padding-top:calc(var(--w)*.06)}
+.pc .face{position:absolute;inset:calc(var(--w)*.26) calc(var(--w)*.22);border:1.5px solid currentColor;border-radius:4px;display:grid;place-items:center;font-size:calc(var(--w)*.42);font-weight:700;opacity:.9}
+.pc.jk{background:linear-gradient(160deg,var(--cardFace) 60%,#f1e3b8)}
+.pc.jk .pip{font-size:calc(var(--w)*.5);color:#b07d12}
+.pc.jk .jt{position:absolute;bottom:calc(var(--w)*.1);inset-inline:0;text-align:center;font:700 calc(var(--w)*.15)/1 var(--body);letter-spacing:1px;color:#8a5f00}
+.pc .v{position:absolute;top:calc(var(--w)*.05);right:calc(var(--w)*.07);font:700 calc(var(--w)*.15)/1 var(--body);color:#8a8578}
+.pc.cback{background:repeating-linear-gradient(45deg,var(--back1) 0 6px,color-mix(in srgb,var(--back2) 55%,var(--back1)) 6px 8px);border:2px solid var(--back2)}
+.pc.cback::after{content:'';position:absolute;inset:18%;border:1.5px solid var(--back2);border-radius:4px;opacity:.7}
+
+/* ---------------- game screen ---------------- */
+#game{height:100vh;height:100dvh;min-height:0;overflow:hidden}
+#game.on{display:grid;grid-template-rows:auto auto 1fr auto auto;grid-template-areas:"top" "opp" "table" "hand" "bar"}
+.gtop{grid-area:top;display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--panel);border-bottom:1px solid var(--line)}
+.gtop .back{min-width:42px;height:38px}
+.gtop .ttl{flex:1;font-size:14px;color:var(--muted);line-height:1.2}
+.gtop .ttl b{display:block;font-family:var(--disp);font-weight:400;color:var(--ink);font-size:17px}
+.ib{width:40px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);font-size:17px}
+.net{font-size:12px;padding:3px 8px;border-radius:20px;border:1px solid var(--line)}
+.net.ok{border-color:var(--ok);color:var(--ok)} .net.warn{border-color:var(--bad);color:var(--bad)}
+.opps{grid-area:opp;display:flex;gap:6px;padding:6px 8px;overflow-x:auto;background:var(--panel)}
+.opp{flex:1 1 0;min-width:84px;max-width:200px;border:1.5px solid var(--line);border-radius:12px;padding:5px 7px;position:relative;background:var(--panel2)}
+.opp.turn{border-color:var(--acc);box-shadow:0 0 0 2px color-mix(in srgb,var(--acc) 35%,transparent)}
+.opp.out{opacity:.45}
+.opp .nm{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;gap:4px;align-items:center}
+.opp .sc{font-size:12px;color:var(--muted)}
+.opp .mini{display:flex;margin-top:3px;min-height:26px;align-items:center}
+.opp .mini .pc{--w:18px;margin-inline-end:-8px;box-shadow:none}
+.opp .mini .kn{--w:20px;margin-inline-end:-4px}
+.opp .cnt{font-size:12px;font-weight:700;margin-inline-start:12px}
+.opp .talk{position:absolute;top:-6px;inset-inline-end:-4px;background:var(--ok);color:#000;border-radius:12px;font-size:11px;padding:1px 6px;font-weight:700}
+.opp .off{color:var(--bad);font-size:11px}
+.bubble{position:absolute;top:100%;inset-inline-start:4px;z-index:20;background:var(--cardFace);color:#111;border-radius:12px;padding:5px 10px;font-size:14px;font-weight:500;box-shadow:0 4px 14px rgba(0,0,0,.4);white-space:nowrap;margin-top:4px;animation:pop .25s ease-out}
+.bubble.big{font-size:30px;padding:0 6px;background:transparent;box-shadow:none}
+.bubble.vm{cursor:pointer;background:var(--acc);color:var(--accInk)}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+
+.table{grid-area:table;position:relative;background:radial-gradient(ellipse at 50% 40%,var(--felt1),var(--felt2) 78%);color:var(--feltInk);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:10px;min-height:0;overflow:hidden;touch-action:manipulation}
+.table::before{content:'';position:absolute;inset:10px;border:1.5px solid var(--feltLine);border-radius:24px;pointer-events:none}
+.tmid{display:flex;align-items:center;justify-content:center;gap:22px;width:100%}
+.deckbox,.topbox{display:flex;flex-direction:column;align-items:center;gap:6px;border-radius:14px;padding:6px;position:relative}
+.deckbox .lb,.topbox .lb{font-size:12px;opacity:.85}
+.stack{position:relative}
+.stack .pc{--w:var(--tw)}
+.stack .pc:nth-child(1){position:absolute;top:4px;left:4px}
+.stack .pc:nth-child(2){position:absolute;top:2px;left:2px}
+.stack .pc:nth-child(3){position:relative}
+.topcards{display:flex;align-items:center;min-height:calc(var(--tw)*1.42)}
+.topcards .pc{--w:var(--tw);margin-inline-end:calc(var(--tw)*-0.38)}
+.topcards .pc:last-child{margin-inline-end:0}
+.topcards{direction:ltr}
+.can{outline:3px solid transparent;transition:outline-color .15s,transform .15s}
+.go .can{outline-color:var(--acc2);outline-offset:2px;cursor:pointer}
+.go .can.pick{transform:translateY(-6px)}
+.deckbox.can{outline-offset:4px}
+.drop{animation:drop .32s ease-out}
+@keyframes drop{from{transform:translateY(-26px) scale(1.08);opacity:0}to{transform:none;opacity:1}}
+.status{font-size:15px;text-align:center;min-height:24px;background:rgba(0,0,0,.28);padding:4px 14px;border-radius:20px;max-width:94%}
+.lastact{font-size:13px;opacity:.85;text-align:center;min-height:20px}
+.stamp{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;z-index:30}
+.stamp b{font-family:var(--disp);font-weight:400;font-size:min(26vw,150px);color:var(--acc2);border:8px solid currentColor;border-radius:24px;padding:0 26px 14px;transform:rotate(-8deg);text-shadow:0 4px 0 rgba(0,0,0,.35);animation:stamp .5s cubic-bezier(.2,1.6,.4,1) both;background:rgba(0,0,0,.25)}
+.stamp b.as{color:#ff6b5e}
+@keyframes stamp{from{transform:rotate(-8deg) scale(2.6);opacity:0}to{transform:rotate(-8deg) scale(1);opacity:1}}
+
+.hand{grid-area:hand;padding:10px 6px 4px;background:var(--panel);border-top:1px solid var(--line);position:relative}
+.hinfo{display:flex;justify-content:space-between;align-items:center;padding:0 8px 6px;font-size:14px;min-height:28px;gap:8px}
+.hinfo .sum{font-family:var(--disp);font-size:20px}
+.hinfo .sum.low{color:var(--ok)}
+.combo{font-size:13px;padding:2px 10px;border-radius:20px;border:1px solid var(--line)}
+.combo.ok{border-color:var(--ok);color:var(--ok)} .combo.bad{border-color:var(--bad);color:var(--bad)}
+.cards{display:flex;justify-content:center;direction:ltr;padding-top:18px;min-height:calc(var(--hw)*1.42 + 22px)}
+.cards .pc{--w:var(--hw);cursor:pointer;transition:transform .14s;margin-inline:3px;touch-action:manipulation}
+.cards.tight .pc{margin-inline:calc(var(--hw)*-0.16)}
+.cards .pc.sel{transform:translateY(-18px);box-shadow:0 0 0 3px var(--acc2),0 8px 16px rgba(0,0,0,.45)}
+.cards .pc.new{animation:newc .9s ease-out}
+.cards .pc.hintc{box-shadow:0 0 0 3px #59c3ff,0 8px 16px rgba(0,0,0,.45)}
+@keyframes newc{0%{box-shadow:0 0 0 4px var(--acc2)}100%{box-shadow:0 2px 6px rgba(0,0,0,.35)}}
+.cards.wait .pc{cursor:default}
+.gbar{grid-area:bar;display:flex;gap:8px;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));background:var(--panel);align-items:stretch}
+.gbar .btn{min-height:50px;padding:8px 10px}
+.yv{flex:1.4;font-family:var(--disp);font-size:24px!important;font-weight:400!important;letter-spacing:.5px}
+.yv:not(:disabled){animation:glow 1.6s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--acc) 30%,transparent)}}
+.voice{display:flex;gap:6px;padding:6px 10px;background:var(--panel2);border-top:1px solid var(--line);align-items:center}
+.voice .btn{min-height:44px;padding:6px 10px;font-size:14px}
+.ptt{flex:1.6;user-select:none;-webkit-user-select:none;touch-action:none}
+.ptt.on{background:var(--ok)!important;color:#000!important;border-color:var(--ok)!important}
+.vbtn.on{background:var(--acc);color:var(--accInk)}
+.rec.on{background:var(--bad);color:#fff;border-color:var(--bad)}
+.emo{position:absolute;bottom:100%;inset-inline:8px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;z-index:40;box-shadow:0 -6px 24px rgba(0,0,0,.4)}
+.emo button{border:1px solid var(--line);background:var(--panel2);border-radius:10px;padding:6px 10px;font-size:15px;min-height:40px}
+.emo button.e{font-size:22px;padding:4px 8px}
+
+/* landscape: table on one side, hand + controls on the other */
+@media (orientation:landscape) and (max-height:560px){
+  #game.on{grid-template-columns:1.25fr 1fr;grid-template-rows:auto auto 1fr auto auto;grid-template-areas:"top top" "opp hand" "table hand" "table bar" "table voice"}
+  .voice{grid-area:voice}
+  .hand{border-top:0;border-inline-start:1px solid var(--line);display:flex;flex-direction:column;justify-content:center}
+  .gbar{border-inline-start:1px solid var(--line)}
+  .opps{padding:4px 8px}
+}
+
+/* ---------------- overlays ---------------- */
+.ov{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:14px}
+.ov .box{background:var(--panel);border:1px solid var(--acc);border-radius:18px;max-width:560px;width:100%;max-height:calc(100dvh - 28px);overflow:auto;padding:18px}
+.ov .box h2{font-size:26px;margin-bottom:6px}
+.pass{background:var(--bg)!important;flex-direction:column;gap:18px;text-align:center}
+.pass h2{font-size:32px;color:var(--acc)}
+.res{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.rp{border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--panel2)}
+.rp.win{border-color:var(--ok)} .rp.lose{border-color:var(--bad)}
+.rp .top{display:flex;justify-content:space-between;gap:8px;font-weight:700}
+.rp .cs{display:flex;gap:3px;margin-top:6px;flex-wrap:wrap;direction:ltr;justify-content:flex-end}
+.rp .cs .pc{--w:30px}
+.tag{font-size:12px;padding:1px 8px;border-radius:12px;background:var(--acc);color:var(--accInk);font-weight:700;margin-inline-start:6px}
+.tag.red{background:var(--bad);color:#fff}
+table.sc{width:100%;border-collapse:collapse;font-size:14px}
+table.sc th,table.sc td{border-bottom:1px solid var(--line);padding:6px 4px;text-align:center}
+table.sc th{color:var(--muted);font-weight:500}
+table.sc tr.tot td{font-weight:700;color:var(--acc)}
+.code{font-family:var(--disp);font-size:52px;letter-spacing:6px;color:var(--acc);text-align:center;direction:ltr}
+.seats{display:flex;flex-direction:column;gap:6px}
+.seat{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
+.seat .d{width:10px;height:10px;border-radius:50%;background:var(--ok);flex:none}
+.seat .d.no{background:var(--bad)}
+.seat b{flex:1}
+.guide .dots{display:flex;gap:6px;justify-content:center;margin:12px 0}
+.guide .dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.guide .dots i.on{background:var(--acc)}
+.rules p,.rules li{line-height:1.65}
+.rules h3{color:var(--acc);margin-top:6px}
+.rv .hands{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.stat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.stat div{background:var(--panel2);border-radius:12px;padding:8px 4px}
+.stat b{display:block;font-family:var(--disp);font-size:24px;font-weight:400;color:var(--acc)}
+.stat span{font-size:12px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<!-- HOME -->
+<section class="scr on" id="home">
+  <div class="hero">
+    <div class="quickset">
+      <button id="qTheme" aria-label="theme">🎨</button>
+      <button id="qMode" aria-label="day/night">🌓</button>
+      <button id="qAbout" aria-label="about">ℹ️</button>
+    </div>
+    <div class="fan" id="homeFan"></div>
+    <div class="logo">יניב!<small>YANIVNEST</small></div>
+    <p class="muted" data-t="tagline"></p>
+  </div>
+  <div class="wrap">
+    <div class="modes" id="resumeBox"></div>
+    <div class="modes">
+      <button class="mode prime" id="mCpu"><span class="ic">🤖</span><span><b data-t="mCpu"></b><span data-t="mCpuD"></span></span></button>
+      <button class="mode" id="mHot"><span class="ic">📱</span><span><b data-t="mHot"></b><span data-t="mHotD"></span></span></button>
+      <button class="mode" id="mNet"><span class="ic">🌐</span><span><b data-t="mNet"></b><span data-t="mNetD"></span></span></button>
+    </div>
+    <div class="tools">
+      <button id="tRules"><i>📖</i><span data-t="rules"></span></button>
+      <button id="tStats"><i>📊</i><span data-t="stats"></span></button>
+      <button id="tReplays"><i>🎬</i><span data-t="replays"></span></button>
+      <button id="tSettings"><i>⚙️</i><span data-t="settings"></span></button>
+    </div>
+    <div class="badge">AppNest · <b>YanivNest</b> · <span class="ltr" id="verLbl"></span></div>
+  </div>
+</section>
+
+<!-- SETUP (vs computer / one phone) -->
+<section class="scr" id="setup">
+  <div class="bar"><button class="back" data-home></button><h2 id="setupTitle"></h2></div>
+  <div class="wrap" id="setupBody"></div>
+</section>
+
+<!-- ONLINE -->
+<section class="scr" id="online">
+  <div class="bar"><button class="back" id="netBack"></button><h2 data-t="mNet"></h2><span class="net" id="netPill"></span></div>
+  <div class="wrap" id="netBody"></div>
+</section>
+
+<!-- GAME -->
+<section class="scr" id="game">
+  <div class="gtop">
+    <button class="back" id="gBack"></button>
+    <div class="ttl"><b id="gTitle"></b><span id="gSub"></span></div>
+    <span class="net hide" id="gNet"></span>
+    <button class="ib" id="gScore" aria-label="scores">🏆</button>
+    <button class="ib" id="gMenu" aria-label="menu">⋯</button>
+  </div>
+  <div class="opps" id="opps"></div>
+  <div class="table" id="table">
+    <div class="status" id="status"></div>
+    <div class="tmid">
+      <div class="deckbox" id="deckbox"><div class="stack" id="deckStack"></div><div class="lb" id="deckLb"></div></div>
+      <div class="topbox" id="topbox"><div class="topcards" id="topcards"></div><div class="lb" id="topLb"></div></div>
+    </div>
+    <div class="lastact" id="lastact"></div>
+    <div class="stamp hide" id="stamp"><b></b></div>
+  </div>
+  <div class="hand">
+    <div class="hinfo"><span class="sum" id="sum"></span><span class="combo hide" id="combo"></span><span class="muted" id="myScore"></span></div>
+    <div class="cards" id="cards"></div>
+  </div>
+  <div class="gbar" id="gbar">
+    <button class="btn" id="bHint" aria-label="hint">💡</button>
+    <button class="btn" id="bBest"></button>
+    <button class="btn" id="bClear" aria-label="clear">✕</button>
+    <button class="btn main yv" id="bYaniv"></button>
+  </div>
+  <div class="voice hide" id="voice">
+    <button class="btn ptt" id="vPtt"></button>
+    <button class="btn vbtn" id="vOpen">🔊</button>
+    <button class="btn rec" id="vRec">⏺</button>
+    <button class="btn" id="vEmo">😀</button>
+  </div>
+</section>
+
+<!-- SETTINGS / STATS / REPLAYS / RULES / ABOUT -->
+<section class="scr" id="settings"><div class="bar"><button class="back" data-home></button><h2 data-t="settings"></h2></div><div class="wrap" id="setBody"></div></section>
+<section class="scr" id="stats"><div class="bar"><button class="back" data-home></button><h2 data-t="stats"></h2></div><div class="wrap" id="statBody"></div></section>
+<section class="scr" id="replays"><div class="bar"><button class="back" data-home></button><h2 data-t="replays"></h2></div><div class="wrap" id="repBody"></div></section>
+<section class="scr" id="rules"><div class="bar"><button class="back" data-home></button><h2 data-t="rules"></h2></div><div class="wrap rules" id="rulesBody"></div></section>
+<section class="scr" id="about"><div class="bar"><button class="back" data-home></button><h2 data-t="about"></h2></div><div class="wrap" id="aboutBody"></div></section>
+<div id="ovs"></div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+/* =====================================================================
+   YanivNest engine — pure rules, no DOM. Runs in the browser and in Node.
+   Cards: 0..51 = suit*13 + (rank-1)  (suits ♠♥♦♣), 52/53 = jokers (value 0).
+   The engine owns the full state (deck + every hand). Players only ever get
+   view(G, seat): their own hand + public information.
+   ===================================================================== */
+const YE = (() => {
+  const isJ = c => c >= 52;
+  const suit = c => isJ(c) ? -1 : Math.floor(c / 13);
+  const rank = c => isJ(c) ? 0 : c % 13 + 1;
+  const val = c => isJ(c) ? 0 : Math.min(10, c % 13 + 1);
+  const sum = h => { let s = 0; for (const c of h) s += val(c); return s; };
+  const DEFAULTS = { limit: 7, assaf: 30, max: 100, halve: true, hand: 5, jokers: 2 };
+
+  /* ---------- seeded RNG (state is one 32-bit int → saved with the round) ---------- */
+  function rnext(R) {
+    R.rs = (R.rs + 0x6D2B79F5) >>> 0; let t = R.rs;
+    t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
+  function shuffle(a, R) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnext(R) * (i + 1)); const x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
+
+  /* ---------- combinations ---------- */
+  // single · set (same rank, jokers wild) · run (3+ same suit in a row, jokers fill gaps; ace is low)
+  function classify(cards) {
+    const n = cards.length; if (!n) return null;
+    if (new Set(cards).size !== n) return null;
+    if (n === 1) return { kind: 'single', order: cards.slice() };
+    const nat = cards.filter(c => !isJ(c)), jk = cards.filter(isJ);
+    if (nat.length === 0 || nat.every(c => rank(c) === rank(nat[0]))) return { kind: 'set', order: nat.concat(jk) };
+    if (n < 3 || !nat.every(c => suit(c) === suit(nat[0]))) return null;
+    const rs = nat.map(rank).sort((a, b) => a - b);
+    for (let i = 1; i < rs.length; i++) if (rs[i] === rs[i - 1]) return null;
+    const lo = rs[0], hi = rs[rs.length - 1];
+    if (hi - lo + 1 - rs.length > jk.length) return null;
+    const byR = {}; nat.forEach(c => byR[rank(c)] = c);
+    const order = []; let j = 0;
+    for (let r = lo; r <= hi; r++) order.push(byR[r] != null ? byR[r] : jk[j++]);
+    let top = hi, bot = lo;
+    while (j < jk.length && top < 13) { order.push(jk[j++]); top++; }
+    while (j < jk.length && bot > 1) { order.unshift(jk[j++]); bot--; }
+    if (j < jk.length) return null;
+    return { kind: 'run', order };
+  }
+  // which cards of the previous throw may be taken: a run → only its two ends; otherwise any card
+  function takeable(top) {
+    if (!top || !top.order.length) return [];
+    if (top.kind === 'run') return top.order.length > 1 ? [top.order[0], top.order[top.order.length - 1]] : top.order.slice();
+    return top.order.slice();
+  }
+  // every legal throw from a hand (hands are small: ≤ 2^7 subsets)
+  function throws(hand) {
+    const out = [], n = hand.length;
+    for (let m = 1; m < (1 << n); m++) {
+      const cs = []; for (let i = 0; i < n; i++) if (m & (1 << i)) cs.push(hand[i]);
+      const k = classify(cs); if (k) out.push({ cards: cs, kind: k.kind, pts: sum(cs) });
+    }
+    return out;
+  }
+  function sortHand(h) { return h.slice().sort((a, b) => (val(a) - val(b)) || (rank(a) - rank(b)) || (a - b)); }
+
+  /* ---------- game ---------- */
+  function newGame(players, cfg, seed) {
+    const G = {
+      v: 1, cfg: Object.assign({}, DEFAULTS, cfg || {}),
+      players: players.map(p => ({ name: p.name || '', kind: p.kind || 'human', lvl: p.lvl || 0, score: 0, out: false })),
+      rn: 0, starter: 0, seed: (seed >>> 0) || ((Math.random() * 4294967296) >>> 0), history: [], over: false, winner: null, round: null
+    };
+    G.starter = G.seed % G.players.length;
+    startRound(G);
+    return G;
+  }
+  const active = G => G.players.map((p, i) => p.out ? -1 : i).filter(i => i >= 0);
+  function nextActive(G, s) { const n = G.players.length; for (let k = 1; k <= n; k++) { const t = (s + k) % n; if (!G.players[t].out) return t; } return s; }
+
+  function startRound(G) {
+    G.rn++;
+    const seed = (G.seed + Math.imul(G.rn, 0x9E3779B1)) >>> 0;
+    const R = { seed, rs: seed, pre: { sc: G.players.map(p => p.score), out: G.players.map(p => p.out) }, deck: [], hands: G.players.map(() => []), known: G.players.map(() => []), pile: [], turn: G.starter, starter: G.starter, acts: [], end: null, turns: 0 };
+    const deck = []; for (let c = 0; c < 52; c++) deck.push(c); for (let j = 0; j < G.cfg.jokers; j++) deck.push(52 + j);
+    shuffle(deck, R); R.deck = deck;
+    if (G.players[R.turn].out) R.turn = nextActive(G, R.turn);
+    for (let k = 0; k < G.cfg.hand; k++) for (const s of active(G)) R.hands[s].push(R.deck.pop());
+    R.pile.push({ order: [R.deck.pop()], kind: 'single', by: -1 });
+    G.round = R;
+    return R;
+  }
+  function topGroup(R) { return R.pile[R.pile.length - 1]; }
+  function reshuffle(R) {
+    if (R.deck.length) return;
+    const keep = R.pile.pop(), cards = [];
+    for (const g of R.pile) for (const c of g.order) cards.push(c);
+    R.pile = [keep]; R.deck = shuffle(cards, R);
+  }
+
+  // a turn: throw `cards`, then take 'd' (deck) or one card of the previous throw
+  function play(G, seat, cards, take) {
+    const R = G.round;
+    if (!R || R.end || G.over) return { ok: false, err: 'phase' };
+    if (R.turn !== seat) return { ok: false, err: 'turn' };
+    const hand = R.hands[seat];
+    if (!cards || !cards.length || !cards.every(c => hand.includes(c))) return { ok: false, err: 'cards' };
+    const k = classify(cards); if (!k) return { ok: false, err: 'combo' };
+    const prev = topGroup(R), opts = takeable(prev);
+    if (take !== 'd' && !opts.includes(take)) return { ok: false, err: 'take' };
+    R.hands[seat] = hand.filter(c => !cards.includes(c));
+    R.known[seat] = R.known[seat].filter(c => !cards.includes(c));
+    let drew;
+    if (take === 'd') { reshuffle(R); drew = R.deck.pop(); }
+    else { drew = take; prev.order = prev.order.filter(c => c !== take); R.known[seat].push(take); if (!prev.order.length) R.pile.pop(); }
+    R.hands[seat].push(drew);
+    R.pile.push({ order: k.order, kind: k.kind, by: seat });
+    if (!R.deck.length) reshuffle(R);
+    R.acts.push({ s: seat, t: k.order, k: take });
+    R.turns++; R.turn = nextActive(G, seat);
+    return { ok: true, drew };
+  }
+
+  function canYaniv(G, seat) { const R = G.round; return !!R && !R.end && !G.over && R.turn === seat && sum(R.hands[seat]) <= G.cfg.limit; }
+  function yaniv(G, seat) {
+    if (!canYaniv(G, seat)) return { ok: false, err: 'yaniv' };
+    const R = G.round, act = active(G), sums = R.hands.map(sum), mine = sums[seat];
+    let assaf = null;
+    for (let k = 1; k < G.players.length; k++) {            // closest in turn order after the caller wins ties
+      const t = (seat + k) % G.players.length;
+      if (G.players[t].out) continue;
+      if (sums[t] <= mine && (assaf == null || sums[t] < sums[assaf])) assaf = t;
+    }
+    const add = G.players.map(() => 0), before = G.players.map(p => p.score), halved = [], outNow = [];
+    for (const s of act) {
+      if (s === seat) add[s] = assaf == null ? 0 : mine + G.cfg.assaf;
+      else if (s === assaf) add[s] = 0;
+      else add[s] = sums[s];
+    }
+    for (const s of act) {
+      const p = G.players[s]; p.score += add[s];
+      if (G.cfg.halve && add[s] > 0 && p.score > 0 && p.score % 50 === 0) { p.score -= 50; halved.push(s); }
+      if (p.score > G.cfg.max) { p.out = true; outNow.push(s); }
+    }
+    R.acts.push({ s: seat, y: 1 });
+    (G.log || (G.log = [])).push({ rn: G.rn, st: R.starter, sc: R.pre.sc, out: R.pre.out, acts: R.acts.slice() });
+    R.end = { caller: seat, assaf, sums, add, before, after: G.players.map(p => p.score), halved, outNow, hands: R.hands.map(h => h.slice()) };
+    G.history.push({ rn: G.rn, caller: seat, assaf, add: add.slice(), after: R.end.after.slice() });
+    G.starter = assaf == null ? seat : assaf;
+    const left = active(G);
+    if (left.length <= 1) { G.over = true; G.winner = left.length ? left[0] : lowest(G); }
+    return { ok: true, assaf };
+  }
+  function lowest(G) { let b = 0; G.players.forEach((p, i) => { if (p.score < G.players[b].score) b = i; }); return b; }
+  function nextRound(G) { if (G.over || !G.round || !G.round.end) return false; startRound(G); return true; }
+  // stop the match early (e.g. the only human was knocked out vs the computer)
+  function finish(G) { if (G.over) return; G.over = true; const left = active(G); let b = left[0]; for (const s of left) if (G.players[s].score < G.players[b].score) b = s; G.winner = b; }
+
+  /* ---------- what one seat may know ---------- */
+  function view(G, seat) {
+    const R = G.round, pileCards = [];
+    for (let i = 0; i < R.pile.length - 1; i++) for (const c of R.pile[i].order) pileCards.push(c);
+    const top = topGroup(R);
+    return {
+      cfg: G.cfg, me: seat, rn: G.rn, turn: R.turn, starter: R.starter, turns: R.turns,
+      players: G.players.map((p, i) => ({ name: p.name, kind: p.kind, lvl: p.lvl, score: p.score, out: p.out, count: R.hands[i].length, known: R.known[i].slice() })),
+      hand: seat >= 0 ? sortHand(R.hands[seat]) : [],
+      top: { order: top.order.slice(), kind: top.kind, by: top.by }, under: pileCards, deck: R.deck.length,
+      last: R.acts.length ? R.acts[R.acts.length - 1] : null,
+      end: R.end, over: G.over, winner: G.winner, history: G.history
+    };
+  }
+  // the private information of `seat` is never in another seat's view (used by the tests)
+  function unseen(V) {
+    const seen = new Set(V.hand.concat(V.top.order, V.under));
+    V.players.forEach((p, i) => { if (i !== V.me) p.known.forEach(c => seen.add(c)); });
+    const out = []; for (let c = 0; c < 52 + V.cfg.jokers; c++) if (!seen.has(c)) out.push(c);
+    return out;
+  }
+
+  /* ---------- replay: seed + actions rebuild every state ---------- */
+  function replayRound(G0players, cfg, gameSeed, rn, starter, scores, outs, acts) {
+    const G = { v: 1, cfg, players: G0players.map((p, i) => ({ name: p.name, kind: p.kind, lvl: p.lvl, score: scores[i], out: outs[i] })), rn: rn - 1, starter, seed: gameSeed, history: [], over: false, winner: null, round: null };
+    startRound(G);
+    const frames = [snapshot(G)];
+    for (const a of acts) { if (a.y) yaniv(G, a.s); else play(G, a.s, a.t, a.k); frames.push(snapshot(G)); }
+    return frames;
+  }
+  function snapshot(G) { const R = G.round; return { hands: R.hands.map(h => sortHand(h)), top: JSON.parse(JSON.stringify(topGroup(R))), deck: R.deck.length, turn: R.turn, end: R.end, last: R.acts[R.acts.length - 1] || null }; }
+
+  return { isJ, suit, rank, val, sum, classify, takeable, throws, sortHand, newGame, startRound, nextRound, play, yaniv, canYaniv, finish, view, unseen, active, nextActive, replayRound, DEFAULTS, shuffle, rnext };
+})();
+
+
+/* =====================================================================
+   YanivNest AI — every decision is made from view(G, seat) only:
+   own hand + what everyone saw on the table. It never peeks.
+   Levels: 0 easy · 1 medium · 2 hard · 3 expert · 9 = "human bot" (tests only)
+   ===================================================================== */
+const YAI = (() => {
+  const E = (typeof YE !== 'undefined') ? YE : require('./engine.js');
+  const memo = new Map();
+  // the most points this hand can throw in one turn (prefer more cards on a tie)
+  function best(hand) {
+    if (!hand.length) return { pts: 0, n: 0 };
+    const key = hand.slice().sort((a, b) => a - b).join(',');
+    let r = memo.get(key); if (r) return r;
+    r = { pts: -1, n: 0 };
+    for (const t of E.throws(hand)) if (t.pts > r.pts || (t.pts === r.pts && t.cards.length > r.n)) r = { pts: t.pts, n: t.cards.length };
+    if (memo.size > 300000) memo.clear();
+    memo.set(key, r); return r;
+  }
+  const W = {
+    2: { t: 0.8, n: 1.2, beta: 0.06, risk: 0.20, gift: 0.25 },
+    3: { t: 0.8, n: 1.2, beta: 0.06, risk: 0.12, gift: 0.5, aware: 1 }
+  };
+  if (typeof process !== 'undefined' && process.env && process.env.W3) Object.assign(W[3], JSON.parse(process.env.W3));
+  function evalH(H, w) { const b = best(H); return E.sum(H) - w.t * b.pts + w.n * H.length; }
+  const combos = (rest, c) => best(rest.concat(c)).pts > E.val(c) + best(rest).pts - 0.001 && best(rest.concat(c)).n > 1;
+  function maxThrow(hand, rnd) {
+    const ts = E.throws(hand); let b = null;
+    for (const t of ts) if (!b || t.pts > b.pts || (t.pts === b.pts && t.cards.length > b.cards.length) || (t.pts === b.pts && t.cards.length === b.cards.length && rnd() < .5)) b = t;
+    return b;
+  }
+  const opps = V => V.players.map((p, i) => ({ p, i })).filter(o => o.i !== V.me && !o.p.out);
+
+  /* ---------- Yaniv: how likely is an Assaf? (Monte-Carlo over the cards I can't see) ---------- */
+  function assafProb(V, beta, N, rnd) {
+    const mine = E.sum(V.hand), pool = E.unseen(V), os = opps(V);
+    const wts = pool.map(c => Math.exp(-beta * E.val(c)));
+    let hits = 0;
+    for (let s = 0; s < N; s++) {
+      const used = new Uint8Array(pool.length); let hit = false;
+      for (const o of os) {
+        let tot = E.sum(o.p.known), u = o.p.count - o.p.known.length;
+        if (tot > mine) continue;
+        for (let k = 0; k < u && tot <= mine; k++) {
+          let W = 0; for (let i = 0; i < pool.length; i++) if (!used[i]) W += wts[i];
+          let r = rnd() * W, pick = -1;
+          for (let i = 0; i < pool.length; i++) { if (used[i]) continue; r -= wts[i]; if (r <= 0) { pick = i; break; } }
+          if (pick < 0) for (let i = pool.length - 1; i >= 0; i--) if (!used[i]) { pick = i; break; }
+          used[pick] = 1; tot += E.val(pool[pick]);
+        }
+        if (tot <= mine) { hit = true; break; }
+      }
+      if (hit) hits++;
+    }
+    return hits / N;
+  }
+  // a rough human guess: known cards + ~`per` points for each card I can't see
+  function guessSafe(V, per, margin) {
+    const mine = E.sum(V.hand);
+    return opps(V).every(o => E.sum(o.p.known) + per * (o.p.count - o.p.known.length) > mine + margin);
+  }
+
+  /* ---------- simple players ---------- */
+  function simplePlay(V, rnd, lowTake, useCombo) {
+    const opts = E.takeable(V.top);
+    let t = maxThrow(V.hand, rnd);
+    if (lowTake === 2 && rnd() < .25) { const ts = E.throws(V.hand); t = ts[Math.floor(rnd() * ts.length)]; }
+    const rest = V.hand.filter(c => !t.cards.includes(c));
+    let take = 'd', bv = 99;
+    for (const o of opts) {
+      const v = E.val(o);
+      if ((v <= lowTake || (useCombo && combos(rest, o))) && v < bv) { take = o; bv = v; }
+    }
+    return { t: t.cards, k: take };
+  }
+
+  /* ---------- evaluated play (hard / expert) ---------- */
+  function evalPlay(V, w, rnd) {
+    const opts = E.takeable(V.top), pool = E.unseen(V);
+    const nextSeat = (() => { for (let k = 1; k <= V.players.length; k++) { const t = (V.me + k) % V.players.length; if (!V.players[t].out) return t; } return V.me; })();
+    const nx = V.players[nextSeat];
+    let sample = pool;
+    if (pool.length > 28) { sample = pool.slice(); E.shuffle(sample, { rs: (rnd() * 4294967296) >>> 0 }); sample = sample.slice(0, 28); }
+    let bestP = null;
+    for (const t of E.throws(V.hand)) {
+      const rest = V.hand.filter(c => !t.cards.includes(c));
+      let gift = 0;
+      if (w.gift && nextSeat !== V.me) {                 // what the next player could pick up from this throw
+        const k = E.classify(t.cards), ends = E.takeable({ order: k.order, kind: k.kind });
+        const close = nx.count <= 3 ? 1.5 : 1;
+        for (const c of ends) { let g = Math.max(0, 4 - E.val(c)); if (nx.known.some(x => !E.isJ(x) && !E.isJ(c) && E.rank(x) === E.rank(c))) g += 3; gift = Math.max(gift, g * close); }
+      }
+      for (const o of opts) { const v = evalH(rest.concat(o), w) + w.gift * gift; if (!bestP || v < bestP.v) bestP = { v, t: t.cards, k: o }; }
+      let acc = 0; for (const x of sample) acc += evalH(rest.concat(x), w);
+      const v = acc / sample.length + w.gift * gift;
+      if (!bestP || v < bestP.v - 1e-9) bestP = { v, t: t.cards, k: 'd' };
+    }
+    return { t: bestP.t, k: bestP.k };
+  }
+
+  function wantYaniv(V, lvl, rnd) {
+    if (E.sum(V.hand) > V.cfg.limit || V.turn !== V.me) return false;
+    if (lvl === 0) return true;
+    if (lvl === 1) return guessSafe(V, 4, 0) || E.sum(V.hand) <= 2;
+    if (lvl === 9) return guessSafe(V, 3, 1) || E.sum(V.hand) <= 1;
+    const w = W[lvl] || W[2];
+    let risk = w.risk * (1 + Math.max(0, V.turns - 24) / 16);          // long rounds: don't stall forever
+    if (w.aware) {
+      const me = V.players[V.me], mine = E.sum(V.hand);
+      if (me.score + mine + V.cfg.assaf > V.cfg.max) risk *= 0.6;          // an Assaf would knock me out
+      if (opps(V).some(o => o.p.count <= 1)) risk *= 1.25;                 // waiting is risky too
+    }
+    return assafProb(V, w.beta, 160, rnd) < risk;
+  }
+
+  function decide(V, lvl, rnd) {
+    rnd = rnd || Math.random;
+    if (wantYaniv(V, lvl, rnd)) return { y: 1 };
+    if (lvl === 0) return simplePlay(V, rnd, 2, false);
+    if (lvl === 1) return simplePlay(V, rnd, 3, true);
+    if (lvl === 9) return simplePlay(V, rnd, 3, true);
+    return evalPlay(V, W[lvl] || W[2], rnd);
+  }
+  // hint for a human: what "expert" would do with the same information
+  function hint(V) { return decide(V, 3, Math.random); }
+  return { decide, hint, assafProb, best, W, evalPlay };
+})();
+
+
+/* =====================================================================
+   NestLink 1.1 — AppNest online multiplayer module (WebRTC via PeerJS)
+   One file, drop into any AppNest game. No server of our own:
+   - a public PeerJS server only introduces the phones; game data, voice
+     and voice messages then travel directly phone-to-phone.
+   - star layout: the host is seat 0 and relays messages between guests,
+     so 2–6 players work; voice is a direct mesh (good up to ~4–5).
+   - every game message is sequenced and re-sent after a reconnect.
+   The game owns the session object (persist it with the game state) and
+   receives events through callbacks. See NESTLINK.md for the API.
+   1.1: sendTo(seat, d) — a private message to one seat only (card games:
+        the host deals each player only their own cards). Compatible with 1.0.
+        After a reconnect, if the other side already got more messages than we
+        remember sending (we restored an older saved session), numbering continues
+        after theirs instead of being silently ignored.
+   ===================================================================== */
+const NestLink = (() => {
+  const CDNS = ['https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js', 'https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.5/peerjs.min.js'];
+  const ICE = [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }, { urls: 'stun:stun.cloudflare.com:3478' }];
+  const AB = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  const genCode = (n = 5) => Array.from({ length: n }, () => AB[Math.floor(Math.random() * AB.length)]).join('');
+  const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+  function loadScript(u) { return new Promise((res, rej) => { const s = document.createElement('script'); s.src = u; s.onload = res; s.onerror = rej; document.head.appendChild(s); setTimeout(rej, 12000); }); }
+  async function loadPeer() { if (window.Peer) return true; for (const u of CDNS) { try { await loadScript(u); if (window.Peer) return true; } catch (e) {} } return false; }
+  const b64 = buf => { let s = '', a = new Uint8Array(buf); for (let i = 0; i < a.length; i += 0x8000) s += String.fromCharCode.apply(null, a.subarray(i, i + 0x8000)); return btoa(s); };
+  const unb64 = s => { const b = atob(s), a = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a; };
+
+  function create(opt) {
+    const L = { status: 'off', lastErr: null, peer: null, conns: {}, retry: null, chunks: {}, calls: {}, audio: {}, mic: null, talking: false, openMic: false, rec: null };
+    let S = null;                                         // the session — owned and persisted by the game
+    const ev = (k, ...a) => { try { opt[k] && opt[k](...a); } catch (e) { console.error(e); } };
+    const persist = () => ev('persist', S);
+    const roomId = c => (opt.app || 'nest') + '-v1-' + c.toLowerCase();
+    const max = () => opt.maxPlayers || 2;
+    const isHost = () => S && S.role === 'host';
+    function peerOpts() {
+      const q = new URLSearchParams(location.search), o = { debug: 0, config: { iceServers: opt.iceServers || ICE } };
+      if (q.get('peerhost')) { o.host = q.get('peerhost'); o.port = +(q.get('peerport') || 9000); o.path = '/'; o.secure = false; }   // test servers only
+      return o;
+    }
+    function setStatus(st, err) { L.status = st; if (err !== undefined) L.lastErr = err; ev('onStatus', st, L.lastErr); }
+    const link = seat => S.links[seat] || (S.links[seat] = { seq: 0, lastIn: 0, out: [] });
+    const rosterEntry = seat => S.roster.find(p => p.seat === seat);
+    function rawTo(seat, m) { const c = L.conns[seat]; try { if (c && c.open) c.send(m); } catch (e) {} }
+    function rawAll(m, except) { for (const s in L.conns) if (+s !== except) rawTo(+s, m); }
+
+    /* ---------- starting ---------- */
+    async function start(session) {
+      close(true); S = session; persist();
+      setStatus('connecting');
+      if (!(await loadPeer())) { setStatus('error', 'load'); return false; }
+      const peer = L.peer = new Peer(isHost() ? roomId(S.code) : undefined, peerOpts());
+      peer.on('open', id => {
+        S.pid = id; if (isHost()) { const me = rosterEntry(0); if (me) { me.pid = id; me.online = true; } }
+        persist(); setStatus(isHost() ? 'waiting' : 'connecting'); if (!isHost()) connectHost();
+      });
+      peer.on('connection', c => { if (isHost()) attach(c, null); });
+      peer.on('call', onCall);
+      peer.on('disconnected', () => setTimeout(() => { try { if (L.peer === peer && !peer.destroyed) peer.reconnect(); } catch (e) {} }, 1500));
+      peer.on('error', e => {
+        const t = e && e.type;
+        if (t === 'unavailable-id') {                     // room id still held (e.g. after reload) — new code while nobody joined, else retry
+          if (S.roster.length < 2) { S.code = genCode(); persist(); ev('onCode', S.code); }
+          setTimeout(() => start(S), S.roster.length < 2 ? 300 : 4000); return;
+        }
+        if (t === 'peer-unavailable') { setStatus('notfound', 'nf'); scheduleRetry(); return; }
+        if (/network|server-error|socket/.test(t || '')) setStatus('error', 'net');
+      });
+      return true;
+    }
+    function host(code) {
+      return start({ role: 'host', code: code || genCode(), seat: 0, cid: uid(), roster: [{ seat: 0, name: opt.name ? opt.name() : '', online: true, cid: null, voice: false }], links: {} });
+    }
+    function join(code) { return start({ role: 'guest', code: code.toUpperCase(), seat: null, cid: uid(), roster: [], links: {} }); }
+    function resume(session) { return start(session); }
+    function scheduleRetry() { clearTimeout(L.retry); if (S && !isHost() && !(L.conns[0] && L.conns[0].open)) L.retry = setTimeout(connectHost, 3000); }
+    function connectHost() { if (!L.peer || L.peer.destroyed || (L.conns[0] && L.conns[0].open)) return; attach(L.peer.connect(roomId(S.code), { reliable: true, serialization: 'json' }), 0); scheduleRetry(); }
+
+    /* ---------- connections ---------- */
+    function attach(c, seat) {
+      let mySeat = seat;                                  // the seat at the other end of this connection
+      const onOpen = () => {
+        if (!isHost()) { L.conns[0] = c; rawTo(0, { t: 'hi', cid: S.cid, name: opt.name ? opt.name() : '', have: link(0).lastIn, v: opt.version }); }
+      };
+      if (c.open) onOpen(); else c.on('open', onOpen);
+      c.on('data', m => {
+        if (!m || !m.t) return;
+        if (isHost() && m.t === 'hi') {                   // a guest introduces itself → give it a seat (same seat when it comes back)
+          let p = S.roster.find(x => x.cid === m.cid);
+          if (!p) {
+            if (S.roster.length >= max()) { try { c.send({ t: 'full' }); c.close(); } catch (e) {} return; }
+            let s = 1; while (S.roster.some(x => x.seat === s)) s++;
+            p = { seat: s, cid: m.cid, name: '', online: true, voice: false }; S.roster.push(p); S.roster.sort((a, b) => a.seat - b.seat);
+            ev('onJoin', s);
+          }
+          mySeat = p.seat; p.name = (m.name || '').slice(0, 20); p.online = true; p.pid = c.peer;
+          if ((m.have || 0) > link(mySeat).seq) link(mySeat).seq = m.have;   // 1.1: we restored an older session — keep numbering after what they already got
+          if (L.conns[mySeat] && L.conns[mySeat] !== c) { try { L.conns[mySeat].close(); } catch (e) {} }
+          L.conns[mySeat] = c;
+          rawTo(mySeat, { t: 'hi', seat: mySeat, have: link(mySeat).lastIn, roster: S.roster, v: opt.version });
+          link(mySeat).out.filter(x => x.seq > (m.have || 0)).forEach(x => rawTo(mySeat, x));
+          if (m.v && opt.version && m.v.split('.')[0] !== opt.version.split('.')[0]) ev('onVersion', m.v);
+          persist(); broadcastRoster(); setStatus('open'); callEveryone();
+          return;
+        }
+        if (!isHost() && m.t === 'hi') {
+          S.seat = m.seat; S.roster = m.roster || [];
+          if ((m.have || 0) > link(0).seq) link(0).seq = m.have;            // 1.1: same protection on the guest side
+          persist();
+          link(0).out.filter(x => x.seq > (m.have || 0)).forEach(x => rawTo(0, x));
+          if (m.v && opt.version && m.v.split('.')[0] !== opt.version.split('.')[0]) ev('onVersion', m.v);
+          clearTimeout(L.retry); setStatus('open'); ev('onRoster', S.roster); callEveryone(); return;
+        }
+        if (m.t === 'full') { setStatus('full', 'full'); close(true); return; }
+        onData(m, isHost() ? mySeat : 0);
+      });
+      const gone = () => {
+        if (isHost()) { if (mySeat == null || L.conns[mySeat] !== c) return; delete L.conns[mySeat]; const p = rosterEntry(mySeat); if (p) p.online = false; persist(); broadcastRoster(); setStatus(Object.keys(L.conns).length ? 'open' : 'waiting'); }
+        else { if (L.conns[0] !== c) return; delete L.conns[0]; setStatus('reconnecting'); scheduleRetry(); }
+        stopAudioFrom(mySeat);
+      };
+      c.on('close', gone); c.on('error', gone);
+    }
+    function broadcastRoster() { if (!isHost()) return; rawAll({ t: 'roster', roster: S.roster }); ev('onRoster', S.roster); }
+
+    /* ---------- messages ---------- */
+    function onData(m, via) {
+      if (m.t === 'roster') { S.roster = m.roster; persist(); ev('onRoster', S.roster); callEveryone(); return; }
+      if (m.t === 'need') { link(via).out.filter(x => x.seq > m.have).forEach(x => rawTo(via, x)); return; }
+      if (m.t === 'emo' || m.t === 'talk' || m.t === 'vm') {
+        if (isHost()) rawAll(m, via);                     // relay to the other guests
+        if (m.t === 'emo') ev('onEmoji', m.e, m.from);
+        else if (m.t === 'talk') { const p = rosterEntry(m.from); if (p) p.talking = m.on; ev('onTalk', m.from, m.on); }
+        else gotChunk(m);
+        return;
+      }
+      if (m.t === 'voice') { const p = rosterEntry(m.from); if (p) p.voice = m.on; if (isHost()) { rawAll(m, via); broadcastRoster(); } callEveryone(); return; }
+      if (m.t !== 'm') return;
+      const lk = link(via);
+      if (m.seq <= lk.lastIn) return;
+      if (m.seq > lk.lastIn + 1) { rawTo(via, { t: 'need', have: lk.lastIn }); return; }
+      lk.lastIn = m.seq; persist();
+      if (isHost() && max() > 2 && !m.p) for (const p of S.roster) if (p.seat !== 0 && p.seat !== m.from) seqTo(p.seat, m.d, m.from);
+      ev('onMessage', m.d, m.from);
+    }
+    function seqTo(seat, d, from, priv) {
+      const lk = link(seat), m = { t: 'm', seq: ++lk.seq, from, d }; if (priv) m.p = 1;
+      lk.out.push(m); if (lk.out.length > 300) lk.out.splice(0, lk.out.length - 300);
+      rawTo(seat, m);
+    }
+    function send(d) {                                    // reliable, ordered, reaches every other player
+      if (!S) return;
+      if (isHost()) { for (const p of S.roster) if (p.seat !== 0) seqTo(p.seat, d, 0); }
+      else seqTo(0, d, S.seat);
+      persist();
+    }
+    function sendTo(seat, d) {                            // private: host → one guest, or guest → host only (not relayed)
+      if (!S || seat === S.seat) return;
+      if (isHost()) { if (S.roster.some(p => p.seat === seat)) seqTo(seat, d, 0, true); }
+      else seqTo(0, d, S.seat, true);
+      persist();
+    }
+    function emoji(e) { if (S) rawAll({ t: 'emo', e, from: S.seat }); }
+    const isOpen = () => !!S && (isHost() ? Object.values(L.conns).some(c => c.open) : !!(L.conns[0] && L.conns[0].open));
+
+    /* ---------- voice: push-to-talk / open mic (direct mesh) ---------- */
+    async function micOn() {
+      if (L.mic) return true;
+      try { L.mic = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }); }
+      catch (e) { ev('onMicError', e && e.name); return false; }
+      L.mic.getAudioTracks().forEach(t => t.enabled = L.openMic);
+      const me = rosterEntry(S.seat); if (me) me.voice = true;
+      const m = { t: 'voice', on: true, from: S.seat }; rawAll(m);
+      callEveryone(); return true;
+    }
+    function callEveryone() {                             // each phone with a mic sends its own one-way audio call to every other phone
+      if (!L.mic || !L.peer || !S) return;
+      for (const p of S.roster) {
+        if (p.seat === S.seat || !p.online || !p.pid) continue;
+        const c = L.calls[p.seat]; if (c && !c._dead) continue;
+        try { const call = L.peer.call(p.pid, L.mic, { metadata: { seat: S.seat } }); L.calls[p.seat] = call; call.on('close', () => { call._dead = true; }); call.on('error', () => { call._dead = true; }); } catch (e) {}
+      }
+    }
+    function onCall(call) {
+      call.answer();                                      // receive only — our own audio goes out on our own call
+      call.on('stream', st => {
+        const seat = call.metadata && call.metadata.seat;
+        let a = L.audio[seat]; if (!a) { a = L.audio[seat] = document.createElement('audio'); a.autoplay = true; a.setAttribute('playsinline', ''); a.style.display = 'none'; document.body.appendChild(a); }
+        a.srcObject = st; const p = a.play(); if (p && p.catch) p.catch(() => ev('onAudioBlocked'));
+      });
+    }
+    function stopAudioFrom(seat) { const a = L.audio[seat]; if (a) { a.srcObject = null; a.remove(); delete L.audio[seat]; } const c = L.calls[seat]; if (c) { try { c.close(); } catch (e) {} delete L.calls[seat]; } }
+    async function talk(on) {
+      if (on && !(await micOn())) return false;
+      if (!L.mic) return false;
+      L.talking = on || L.openMic; L.mic.getAudioTracks().forEach(t => t.enabled = L.talking);
+      rawAll({ t: 'talk', on: L.talking, from: S.seat }); return true;
+    }
+    async function setOpenMic(on) { L.openMic = on; if (on && !(await micOn())) { L.openMic = false; return false; } return talk(on); }
+
+    /* ---------- voice messages ---------- */
+    async function recStart(maxSec) {
+      if (L.rec || !(await micOn())) return false;
+      const track = L.mic.getAudioTracks()[0].clone(); track.enabled = true;
+      const st = new MediaStream([track]), mime = ['audio/webm;codecs=opus', 'audio/ogg;codecs=opus', 'audio/webm', 'audio/mp4'].find(t => window.MediaRecorder && MediaRecorder.isTypeSupported(t)) || '';
+      let r; try { r = new MediaRecorder(st, mime ? { mimeType: mime, audioBitsPerSecond: 24000 } : undefined); } catch (e) { ev('onMicError', 'rec'); return false; }
+      const parts = [], t0 = Date.now();
+      L.rec = { r, track, t0, timer: setTimeout(() => recStop(), (maxSec || 20) * 1000) };
+      r.ondataavailable = e => { if (e.data && e.data.size) parts.push(e.data); };
+      r.onstop = async () => {
+        track.stop();
+        const dur = Math.round((Date.now() - t0) / 100) / 10, blob = new Blob(parts, { type: r.mimeType || mime || 'audio/webm' });
+        if (L.rec && L.rec.cancel || dur < .4 || !blob.size) { L.rec = null; ev('onRecState', false); return; }
+        L.rec = null; ev('onRecState', false);
+        const data = b64(await blob.arrayBuffer()), id = uid(), CH = 12000, n = Math.ceil(data.length / CH);
+        for (let i = 0; i < n; i++) rawAll({ t: 'vm', id, i, n, dur, mime: blob.type, from: S.seat, data: data.slice(i * CH, (i + 1) * CH) });
+        ev('onVoiceMsg', URL.createObjectURL(blob), dur, S.seat, true);
+      };
+      r.start(); ev('onRecState', true, t0); return true;
+    }
+    function recStop(cancel) { if (!L.rec) return; clearTimeout(L.rec.timer); L.rec.cancel = !!cancel; try { L.rec.r.stop(); } catch (e) {} }
+    function gotChunk(m) {
+      const c = L.chunks[m.id] || (L.chunks[m.id] = { parts: [], got: 0, t: Date.now() });
+      if (c.parts[m.i] == null) { c.parts[m.i] = m.data; c.got++; }
+      if (c.got === m.n) { delete L.chunks[m.id]; const blob = new Blob([unb64(c.parts.join(''))], { type: m.mime || 'audio/webm' }); ev('onVoiceMsg', URL.createObjectURL(blob), m.dur, m.from, false); }
+      for (const k in L.chunks) if (Date.now() - L.chunks[k].t > 60000) delete L.chunks[k];
+    }
+
+    /* ---------- closing ---------- */
+    function close(keepSession) {
+      clearTimeout(L.retry);
+      Object.keys(L.audio).forEach(s => stopAudioFrom(+s));
+      for (const s in L.conns) { try { L.conns[s].close(); } catch (e) {} }
+      L.conns = {};
+      if (L.mic) { L.mic.getTracks().forEach(t => t.stop()); L.mic = null; }
+      L.calls = {}; L.talking = false;
+      try { if (L.peer) L.peer.destroy(); } catch (e) {}
+      L.peer = null; if (!keepSession) S = null; setStatus('off');
+    }
+
+    return {
+      host, join, resume, close, send, sendTo, emoji, isOpen, talk, setOpenMic, recStart, recStop,
+      get status() { return L.status; }, get error() { return L.lastErr; }, get session() { return S; },
+      get seat() { return S ? S.seat : null; }, get roster() { return S ? S.roster : []; },
+      get micReady() { return !!L.mic; }, get talking() { return L.talking; }, get openMic() { return L.openMic; }, get recording() { return !!L.rec; },
+      inviteURL: () => location.origin + location.pathname + '?join=' + (S ? S.code : ''),
+      _L: L
+    };
+  }
+  return { create, genCode, loadPeer };
+})();
+
+/* =====================================================================
+   YanivNest — texts. Hebrew + English complete; Russian, Spanish, Arabic:
+   menus and main buttons (anything missing falls back to English).
+   ===================================================================== */
+const LANG = {
+he: {
+  tagline: 'משחק הקלפים של כל טיול, מילואים וחוף ים', mCpu: 'מול המחשב', mCpuD: '1 עד 4 יריבים, ארבע רמות', mHot: 'בטלפון אחד', mHotD: '2 עד 4 שחקנים מעבירים את הטלפון', mNet: 'אונליין עם חברים', mNetD: 'חדר עם קוד, וואטסאפ ודיבור בזמן המשחק',
+  rules: 'חוקים', stats: 'סטטיסטיקה', replays: 'ריפליי', settings: 'הגדרות', about: 'אודות', resume: 'המשך משחק', resumeNet: 'חזרה לחדר האונליין',
+  saveFail: 'השמירה נכשלה — הזיכרון בטלפון מלא', cancel: 'ביטול', ok: 'אישור', close: 'סגור', home: 'לבית', next: 'הבא', skip: 'דלג', letsPlay: 'יאללה, משחקים',
+  player: 'שחקן', you: 'אתה', host: 'מארח', points: 'נקודות', pts: '{n} נק׳', ptsShort: '{n} נק׳', none: 'בלי',
+  roundN: 'סיבוב {n}', roundsN: '{n} סיבובים', toPts: 'עד {n}', deckN: 'חפיסה · {n}', openCard: 'קלף פתיחה', thrownBy: 'זרק: {n}', onTable: 'על השולחן',
+  yourTurn: 'תורך: בחר קלפים לזריקה, ואז הקש על החפיסה או על קלף מסומן', turnOf: 'התור של {n}', thinking: '{n} חושב…', passing: 'מעבירים את הטלפון…', sending: 'שולח…', roundOver: 'הסיבוב נגמר', gameOver: 'המשחק נגמר', spectator: 'אתה צופה',
+  actLine: '{who} זרק {what} ו{took}', fromDeck: 'לקח מהחפיסה', took: 'לקח {c}',
+  sum: 'סכום {n}', myScore: 'הניקוד שלי: {n}', k_single: 'קלף בודד', k_set: 'סט', k_run: 'רצף', notLegal: 'לא זריקה חוקית',
+  yaniv: 'יניב!', yanivSure: 'בטוח? הקש שוב', assaf: 'אסף!', best: 'הכי גבוה', pickFirst: 'קודם בחר קלפים לזריקה', illegal: 'המהלך לא חוקי',
+  hintYaniv: '💡 עכשיו זה הזמן לקרוא יניב', hintDeck: '💡 זרוק את המסומנים וקח מהחפיסה', hintTake: '💡 זרוק את המסומנים וקח את {c}',
+  offline: 'מנותק', talking: 'מדבר', outTag: 'בחוץ', halved: '−50',
+  assafLine: '<b>{a}</b> תפס את <b>{c}</b>, שקרא יניב עם {n}', yanivLine: '<b>{c}</b> קרא יניב עם {n} — ואף אחד לא היה נמוך יותר',
+  rowPts: 'ביד {s} · {a} · סה״כ {t}', scoreTable: 'טבלת ניקוד', nextRound: 'סיבוב הבא', summary: 'סיכום המשחק', waitHost: 'ממתינים למארח…',
+  tableKey: '✓ = קרא יניב והצליח · ★ = עשה אסף · ✕ = עבר את {n} ויצא',
+  youWon: 'ניצחת!', youLost: '{n} ניצח הפעם', winnerIs: 'המנצח: {n}', hintsUsed: 'השתמשת ב-{n} רמזים', playAgain: 'משחק חוזר', replay: 'ריפליי', noReplay: 'אין ריפליי למשחק הזה',
+  howWon: 'איך ניצחת?', how1: 'קראתי יניב מוקדם', how2: 'תפסתי אותו באסף', how3: 'הוא זרק לי קלפים טובים', how4: 'סתם מזל', howThanks: 'תודה! זה עוזר לכייל את המחשב.',
+  menu: 'תפריט', soundOff: 'כבה צלילים', soundOn: 'הפעל צלילים', bigBoard: 'לוח ענק (טלפון שוכב)', rotateHint: 'סובב את הטלפון לרוחב', replaceBot: 'המחשב ישחק במקום {n}', quitGame: 'סיים משחק', quitQ: 'לסיים את המשחק? אי אפשר יהיה להמשיך אותו.',
+  passTo: 'העבר את הטלפון ל{n}', passHint: 'שאר השחקנים לא מסתכלים 🙈', passGo: 'אני {n} — הראה לי את הקלפים',
+  rvDeal: 'חלוקה', rvYaniv: '{n} קרא יניב',
+  lvl0: 'קל', lvl1: 'בינוני', lvl2: 'קשה', lvl3: 'מומחה',
+  lvlD0: 'זורק את הקלף הכי גבוה וקורא יניב בהזדמנות הראשונה. טוב ללמוד.', lvlD1: 'לוקח קלפים שמשלימים לו זוג או רצף, ומעריך כמה יש לך ביד.', lvlD2: 'זוכר מה כל אחד לקח, מחשב סיכון לאסף ולא נותן לך קלפים נמוכים בקלות.', lvlD3: 'כמו קשה, וזהיר מאוד ביניב: נתפס באסף רק לעיתים רחוקות.',
+  yourName: 'השם שלך', opponents: 'כמה יריבים', level: 'רמה', howMany: 'כמה שחקנים', rulesTitle: 'חוקי המשחק', startGame: 'התחל משחק',
+  rLimit: 'אפשר לקרוא יניב עם סכום של עד', rAssaf: 'קנס אסף', rMax: 'מי שעובר את … נקודות יוצא', rHand: 'קלפים ביד', rJokers: 'ג׳וקרים', rHalve: 'ציון של בדיוק 50 / 100 / 150 יורד ב-50',
+  rulesSum: 'יניב עד {l} · אסף {a} · עד {m} · {h} קלפים',
+  language: 'שפה', look: 'מראה', theme: 'ערכת צבע', th_gold: 'זהב', th_silver: 'כסף', th_emerald: 'אזמרגד', th_ruby: 'רובי', th_ocean: 'ים', dayNight: 'יום / לילה', day: 'יום', night: 'לילה',
+  tableColor: 'צבע השולחן', b_felt: 'לבד ירוק', b_wood: 'עץ', b_contrast: 'ניגודיות גבוהה', b_theme: 'כמו הערכה',
+  gameplay: 'משחק', speed: 'מהירות המחשב', sp_slow: 'איטי', sp_normal: 'רגיל', sp_fast: 'מהיר', showKnown: 'להראות קלפים שיריבים לקחו מהערימה', sound: 'צלילים', vibrate: 'רטט בתור שלי',
+  backup: 'גיבוי', backupD: 'הכל שמור רק בטלפון. קובץ גיבוי שומר הגדרות, סטטיסטיקה, ריפליי ומשחק פתוח.', exportB: 'ייצוא', importB: 'שחזור', exported: 'קובץ הגיבוי נשמר', badFile: 'זה לא קובץ גיבוי של YanivNest', importQ: 'לשחזר את הגיבוי של {n} מ-{d}? הוא יחליף את מה שיש עכשיו.', backupBy: 'גיבוי YanivNest של {n}',
+  guide: 'מדריך', resetAll: 'מחק הכל', resetQ1: 'למחוק את כל ההגדרות, הסטטיסטיקה והריפליי?', resetQ2: 'בטוח? אי אפשר לשחזר בלי קובץ גיבוי.', resetYes: 'כן, למחוק',
+  s_games: 'משחקים', s_wins: 'ניצחונות', s_winPct: 'אחוז ניצחון', s_calls: 'קריאות יניב', s_yanivs: 'יניב שהצליח', s_caught: 'נתפסתי באסף', s_assafs: 'עשיתי אסף', s_rounds: 'סיבובים', games: 'משחקים', wins: 'ניצחונות',
+  noReplays: 'עוד אין ריפליי. אחרי כל משחק אפשר לראות אותו שוב, עם כל הקלפים גלויים.', playNow: 'למשחק מול המחשב',
+  a_ver: 'גרסה', a_dev: 'פיתוח', a_plat: 'פלטפורמה', a_store: 'אחסון', a_local: 'על המכשיר בלבד', a_lic: 'רישיון', a_storeLink: 'חנות AppNest', a_share: 'שתף את האפליקציה', a_feedback: 'שלח משוב', a_privacy: 'מדיניות פרטיות',
+  a_disc: 'יניב הוא משחק עממי; האפליקציה נועדה לבידור בלבד ואינה כוללת הימורים או כסף. במשחק אונליין הקול והמהלכים עוברים ישירות בין הטלפונים ולא נשמרים אצלנו.',
+  shareTxt: '{n} מזמין אותך לשחק יניב ב-YanivNest',
+  newRoom: 'חדר חדש', newRoomD: 'אתה המארח: אתה מחלק, וכולם מקבלים רק את הקלפים שלהם.', createRoom: 'צור חדר', joinRoom: 'הצטרף לחדר', join: 'הצטרף',
+  netNote: 'החיבור ישיר בין הטלפונים. שרת ציבורי של PeerJS רק מכיר ביניהם. בחלק מהרשתות הסלולריות חיבור ישיר נחסם — אז עדיף Wi-Fi.',
+  roomCode: 'קוד החדר', copyLink: 'העתק קישור', copied: 'הקישור הועתק', players: 'שחקנים', addBot: 'מחשב', connecting: 'מתחבר…', waitStart: 'ממתינים שהמארח יתחיל את המשחק',
+  backToGame: 'חזרה למשחק', leaveRoom: 'צא מהחדר', leaveQ: 'לצאת מהחדר?', inviteMsg: '{n} מזמין אותך ליניב 🃏 קוד: {c}',
+  nameFirst: 'קודם כתוב את השם שלך', badCode: 'הקוד הוא 5 אותיות ומספרים', needFriend: 'צריך לפחות חבר אחד מחובר', roomNotFound: 'החדר לא נמצא עדיין — מנסה שוב…', roomFull: 'החדר מלא', netLoadFail: 'אין חיבור לאינטרנט, או שהשרת הציבורי לא זמין',
+  hostLeft: 'המארח סגר את החדר', versionWarn: 'לחבר יש גרסה אחרת של האפליקציה — כדאי ששניכם תעדכנו', micDenied: 'צריך לאשר גישה למיקרופון כדי לדבר', tapToHear: 'הקש על המסך כדי לשמוע',
+  vmSent: 'ההודעה הקולית נשלחה', vmGot: 'הגיעה הודעה קולית', stop: 'עצור', sent: 'נשלח', openMicOn: 'מיקרופון פתוח — כולם שומעים אותך', openMicOff: 'המיקרופון הפתוח כבוי', ptt: 'החזק ודבר',
+  st_off: 'לא מחובר', st_connecting: 'מתחבר…', st_waiting: 'ממתין לחברים', st_open: 'מחובר', st_reconnecting: 'מתחבר מחדש…', st_notfound: 'מחפש חדר…', st_error: 'שגיאת רשת', st_full: 'החדר מלא',
+  ph1: 'יאללה, תזרוק!', ph2: 'איזה מזל!', ph3: 'אסף בדרך…', ph4: 'יפה!', ph5: 'עוד סיבוב?', ph6: 'רגע, חושב',
+  g1t: 'ברוך הבא ליניב', g1d: 'המטרה: להגיע לסכום נמוך ביד. אס = 1, תמונות = 10, ג׳וקר = 0. כשהסכום שלך הוא {l} או פחות, בתחילת התור אפשר לקרוא "יניב!".',
+  g2t: 'זורקים, ואז לוקחים', g2d: 'בכל תור בוחרים קלפים לזריקה — קלף בודד, סט (זוג ומעלה מאותו מספר) או רצף של 3 ומעלה באותה צורה. אחר כך מקישים על החפיסה או על קלף מסומן שהשחקן הקודם זרק.',
+  g3t: 'מה מותר לקחת', g3d: 'מסט אפשר לקחת כל קלף. מרצף — רק את הקלפים בקצוות. מה שנלקח מהערימה גלוי לכולם, והמחשב זוכר את זה. גם אתה רואה את זה ליד שם השחקן.',
+  g4t: 'יניב או אסף', g4d: 'קראת יניב ואף אחד לא נמוך ממך? אתה מקבל 0 וכל השאר את הסכום שלהם. אם למישהו סכום שווה או נמוך יותר — זה אסף: הוא מקבל 0, ואתה את הסכום שלך ועוד 30.',
+  g5t: 'אונליין ודיבור', g5d: 'צור חדר ושלח קוד בוואטסאפ. בזמן המשחק: החזק כדי לדבר, מיקרופון פתוח, הודעה קולית ואימוג׳י. לא בטוח מה לזרוק? 💡 נותן רמז.',
+  rulesHTML: '<h3>המטרה</h3><p>להישאר עם סכום כמה שיותר נמוך ביד, ולקרוא "יניב" בזמן הנכון. אס = 1, 2–10 לפי המספר, נסיך / מלכה / מלך = 10, ג׳וקר = 0.</p><h3>תור</h3><p>זורקים אחת מאלה: קלף בודד · סט (שניים ומעלה מאותו מספר, ג׳וקר יכול להשלים) · רצף של 3 ומעלה באותה צורה (אס נמוך בלבד, ג׳וקר ממלא חור). ואז לוקחים קלף אחד: מהחפיסה, או אחד מהקלפים שהשחקן הקודם זרק. מסט — כל קלף; מרצף — רק הקצוות.</p><h3>יניב</h3><p>בתחילת התור, אם הסכום שלך {l} או פחות, אפשר לקרוא יניב במקום לשחק. כל הקלפים נחשפים.</p><ul><li>אף אחד לא נמוך או שווה לך — אתה מקבל 0, כל השאר את הסכום שלהם.</li><li><b>אסף:</b> למישהו סכום שווה או נמוך יותר — הוא מקבל 0, ואתה מקבל את הסכום שלך ועוד {a}. אם כמה עשו אסף, הנמוך מביניהם מנצח (בתיקו — הקרוב אחריך בתור).</li></ul><h3>ניקוד</h3><p>מי שעובר את {m} נקודות יוצא. ציון שנוחת בדיוק על 50, 100 או 150 יורד ב-50 (אפשר לכבות). האחרון שנשאר במשחק מנצח. את הסיבוב הבא פותח מי שניצח בסיבוב.</p><h3>חפיסה</h3><p>כשהחפיסה נגמרת, הקלפים שנזרקו מתערבבים לחפיסה חדשה (חוץ מהזריקה האחרונה).</p>'
+},
+en: {
+  tagline: 'The card game of every trip, army base and beach', mCpu: 'Vs computer', mCpuD: '1–4 opponents, four levels', mHot: 'One phone', mHotD: '2–4 players pass the phone', mNet: 'Online with friends', mNetD: 'Room code, WhatsApp invite, talk while you play',
+  rules: 'Rules', stats: 'Stats', replays: 'Replays', settings: 'Settings', about: 'About', resume: 'Continue game', resumeNet: 'Back to the online room',
+  saveFail: 'Saving failed — the phone storage is full', cancel: 'Cancel', ok: 'OK', close: 'Close', home: 'Home', next: 'Next', skip: 'Skip', letsPlay: "Let's play",
+  player: 'Player', you: 'You', host: 'host', points: 'Points', pts: '{n} pts', ptsShort: '{n} pts', none: 'None',
+  roundN: 'Round {n}', roundsN: '{n} rounds', toPts: 'to {n}', deckN: 'Deck · {n}', openCard: 'Opening card', thrownBy: 'Thrown by {n}', onTable: 'On the table',
+  yourTurn: 'Your turn: pick cards to throw, then tap the deck or a highlighted card', turnOf: "{n}'s turn", thinking: '{n} is thinking…', passing: 'Passing the phone…', sending: 'Sending…', roundOver: 'Round over', gameOver: 'Game over', spectator: 'You are watching',
+  actLine: '{who} threw {what} and {took}', fromDeck: 'drew from the deck', took: 'took {c}',
+  sum: 'Total {n}', myScore: 'My score: {n}', k_single: 'Single', k_set: 'Set', k_run: 'Run', notLegal: 'Not a legal throw',
+  yaniv: 'Yaniv!', yanivSure: 'Sure? Tap again', assaf: 'Assaf!', best: 'Highest', pickFirst: 'Pick cards to throw first', illegal: 'That move is not allowed',
+  hintYaniv: '💡 Now is the time to call Yaniv', hintDeck: '💡 Throw the highlighted cards and draw from the deck', hintTake: '💡 Throw the highlighted cards and take {c}',
+  offline: 'offline', talking: 'talking', outTag: 'out', halved: '−50',
+  assafLine: '<b>{a}</b> caught <b>{c}</b>, who called Yaniv with {n}', yanivLine: '<b>{c}</b> called Yaniv with {n} — nobody was lower',
+  rowPts: 'hand {s} · {a} · total {t}', scoreTable: 'Score table', nextRound: 'Next round', summary: 'Game summary', waitHost: 'Waiting for the host…',
+  tableKey: '✓ = called Yaniv and won · ★ = made Assaf · ✕ = went over {n} and is out',
+  youWon: 'You won!', youLost: '{n} won this time', winnerIs: 'Winner: {n}', hintsUsed: 'You used {n} hints', playAgain: 'Play again', replay: 'Replay', noReplay: 'No replay for this game',
+  howWon: 'How did you win?', how1: 'I called Yaniv early', how2: 'I caught it with Assaf', how3: 'It gave me good cards', how4: 'Pure luck', howThanks: 'Thanks! This helps tune the computer.',
+  menu: 'Menu', soundOff: 'Sound off', soundOn: 'Sound on', bigBoard: 'Big table (landscape)', rotateHint: 'Turn your phone sideways', replaceBot: 'Computer plays for {n}', quitGame: 'End game', quitQ: 'End this game? It cannot be continued.',
+  passTo: 'Pass the phone to {n}', passHint: 'Everyone else, look away 🙈', passGo: "I'm {n} — show my cards",
+  rvDeal: 'Deal', rvYaniv: '{n} called Yaniv',
+  lvl0: 'Easy', lvl1: 'Medium', lvl2: 'Hard', lvl3: 'Expert',
+  lvlD0: 'Throws its highest card and calls Yaniv at the first chance. Good for learning.', lvlD1: 'Takes cards that make a pair or run and guesses what you hold.', lvlD2: 'Remembers what everyone took, weighs the Assaf risk and rarely feeds you low cards.', lvlD3: 'Like Hard, and very careful with Yaniv: it is rarely caught by an Assaf.',
+  yourName: 'Your name', opponents: 'Opponents', level: 'Level', howMany: 'Players', rulesTitle: 'Rules', startGame: 'Start game',
+  rLimit: 'Call Yaniv with a total of up to', rAssaf: 'Assaf penalty', rMax: 'Out when over … points', rHand: 'Cards in hand', rJokers: 'Jokers', rHalve: 'A score of exactly 50 / 100 / 150 drops by 50',
+  rulesSum: 'Yaniv ≤ {l} · Assaf {a} · to {m} · {h} cards',
+  language: 'Language', look: 'Look', theme: 'Theme', th_gold: 'Gold', th_silver: 'Silver', th_emerald: 'Emerald', th_ruby: 'Ruby', th_ocean: 'Ocean', dayNight: 'Day / night', day: 'Day', night: 'Night',
+  tableColor: 'Table colour', b_felt: 'Green felt', b_wood: 'Wood', b_contrast: 'High contrast', b_theme: 'Match theme',
+  gameplay: 'Play', speed: 'Computer speed', sp_slow: 'Slow', sp_normal: 'Normal', sp_fast: 'Fast', showKnown: 'Show cards opponents took from the pile', sound: 'Sounds', vibrate: 'Vibrate on my turn',
+  backup: 'Backup', backupD: 'Everything stays on this phone. A backup file keeps settings, stats, replays and an open game.', exportB: 'Export', importB: 'Restore', exported: 'Backup file saved', badFile: 'This is not a YanivNest backup file', importQ: "Restore {n}'s backup from {d}? It replaces what is here now.", backupBy: "{n}'s YanivNest backup",
+  guide: 'Guide', resetAll: 'Delete everything', resetQ1: 'Delete all settings, stats and replays?', resetQ2: 'Sure? This cannot be undone without a backup file.', resetYes: 'Yes, delete',
+  s_games: 'Games', s_wins: 'Wins', s_winPct: 'Win rate', s_calls: 'Yaniv calls', s_yanivs: 'Successful Yaniv', s_caught: 'Caught by Assaf', s_assafs: 'Assafs made', s_rounds: 'Rounds', games: 'Games', wins: 'Wins',
+  noReplays: 'No replays yet. After each game you can watch it again with every card face up.', playNow: 'Play vs computer',
+  a_ver: 'Version', a_dev: 'Developer', a_plat: 'Platform', a_store: 'Storage', a_local: 'On this device only', a_lic: 'License', a_storeLink: 'AppNest store', a_share: 'Share the app', a_feedback: 'Send feedback', a_privacy: 'Privacy policy',
+  a_disc: 'Yaniv is a folk game; this app is for fun only and involves no gambling or money. Online, voice and moves travel directly between phones and are not stored by us.',
+  shareTxt: '{n} invites you to play Yaniv on YanivNest',
+  newRoom: 'New room', newRoomD: 'You are the host: you deal, and everyone receives only their own cards.', createRoom: 'Create room', joinRoom: 'Join a room', join: 'Join',
+  netNote: 'Phones connect directly. A public PeerJS server only introduces them. Some mobile networks block direct connections — Wi-Fi works best.',
+  roomCode: 'Room code', copyLink: 'Copy link', copied: 'Link copied', players: 'Players', addBot: 'Computer', connecting: 'Connecting…', waitStart: 'Waiting for the host to start',
+  backToGame: 'Back to the game', leaveRoom: 'Leave room', leaveQ: 'Leave the room?', inviteMsg: '{n} invites you to Yaniv 🃏 code: {c}',
+  nameFirst: 'Type your name first', badCode: 'The code is 5 letters and digits', needFriend: 'At least one friend must be connected', roomNotFound: 'Room not found yet — retrying…', roomFull: 'The room is full', netLoadFail: 'No internet, or the public server is unavailable',
+  hostLeft: 'The host closed the room', versionWarn: 'Your friend has a different app version — you should both update', micDenied: 'Allow microphone access to talk', tapToHear: 'Tap the screen to hear',
+  vmSent: 'Voice message sent', vmGot: 'Voice message received', stop: 'Stop', sent: 'Sent', openMicOn: 'Open mic — everyone hears you', openMicOff: 'Open mic is off', ptt: 'Hold to talk',
+  st_off: 'Not connected', st_connecting: 'Connecting…', st_waiting: 'Waiting for friends', st_open: 'Connected', st_reconnecting: 'Reconnecting…', st_notfound: 'Looking for room…', st_error: 'Network error', st_full: 'Room full',
+  ph1: 'Come on, throw!', ph2: 'So lucky!', ph3: 'Assaf incoming…', ph4: 'Nice!', ph5: 'Another round?', ph6: 'Wait, thinking',
+  g1t: 'Welcome to Yaniv', g1d: 'Goal: get a low total in your hand. Ace = 1, faces = 10, joker = 0. When your total is {l} or less, you can call "Yaniv!" at the start of your turn.',
+  g2t: 'Throw, then take', g2d: 'Each turn pick cards to throw — a single card, a set (two or more of the same number) or a run of 3+ in one suit. Then tap the deck, or a highlighted card the previous player threw.',
+  g3t: 'What you may take', g3d: 'From a set, any card. From a run, only the end cards. Cards taken from the pile are seen by all — the computer remembers, and you see them next to the player\'s name.',
+  g4t: 'Yaniv or Assaf', g4d: 'You called Yaniv and nobody is lower? You score 0 and everyone else scores their total. If someone is equal or lower — Assaf: they score 0 and you score your total plus 30.',
+  g5t: 'Online and voice', g5d: 'Create a room and send the code on WhatsApp. While playing: hold to talk, open mic, voice messages and emoji. Not sure what to throw? 💡 gives a hint.',
+  rulesHTML: '<h3>Goal</h3><p>Keep your hand total as low as possible and call "Yaniv" at the right moment. Ace = 1, 2–10 face value, J / Q / K = 10, joker = 0.</p><h3>A turn</h3><p>Throw one of: a single card · a set (two or more of the same number, a joker can fill in) · a run of 3+ in one suit (ace is low only, a joker fills a gap). Then take one card: from the deck, or one of the cards the previous player threw. From a set — any card; from a run — only the ends.</p><h3>Yaniv</h3><p>At the start of your turn, if your total is {l} or less, you may call Yaniv instead of playing. All hands are revealed.</p><ul><li>Nobody is equal or lower — you score 0, everyone else scores their total.</li><li><b>Assaf:</b> someone is equal or lower — they score 0, and you score your total plus {a}. If several, the lowest wins (on a tie, the next after you in turn order).</li></ul><h3>Scoring</h3><p>Going over {m} points knocks you out. A score landing exactly on 50, 100 or 150 drops by 50 (can be turned off). The last player left wins. The round winner starts the next round.</p><h3>Deck</h3><p>When the deck runs out, the thrown cards are shuffled into a new deck (except the last throw).</p>'
+},
+ru: { tagline: 'Израильская карточная игра', mCpu: 'Против компьютера', mCpuD: '1–4 соперника, 4 уровня', mHot: 'Один телефон', mHotD: '2–4 игрока передают телефон', mNet: 'Онлайн с друзьями', mNetD: 'Комната с кодом и голосом', rules: 'Правила', stats: 'Статистика', replays: 'Повторы', settings: 'Настройки', about: 'О программе', resume: 'Продолжить', cancel: 'Отмена', close: 'Закрыть', home: 'Домой', startGame: 'Начать игру', yourName: 'Ваше имя', language: 'Язык', theme: 'Тема', level: 'Уровень', opponents: 'Соперники', lvl0: 'Лёгкий', lvl1: 'Средний', lvl2: 'Сложный', lvl3: 'Эксперт', nextRound: 'Следующий раунд', playAgain: 'Ещё раз', createRoom: 'Создать комнату', join: 'Войти', yaniv: 'Yaniv!', assaf: 'Assaf!', roundN: 'Раунд {n}', yourTurn: 'Ваш ход', scoreTable: 'Таблица очков', menu: 'Меню', quitGame: 'Завершить игру', ptt: 'Держите, чтобы говорить' },
+es: { tagline: 'El juego de cartas israelí', mCpu: 'Contra la computadora', mCpuD: '1–4 rivales, 4 niveles', mHot: 'Un teléfono', mHotD: '2–4 jugadores se pasan el teléfono', mNet: 'En línea con amigos', mNetD: 'Sala con código y voz', rules: 'Reglas', stats: 'Estadísticas', replays: 'Repeticiones', settings: 'Ajustes', about: 'Acerca de', resume: 'Continuar', cancel: 'Cancelar', close: 'Cerrar', home: 'Inicio', startGame: 'Empezar', yourName: 'Tu nombre', language: 'Idioma', theme: 'Tema', level: 'Nivel', opponents: 'Rivales', lvl0: 'Fácil', lvl1: 'Medio', lvl2: 'Difícil', lvl3: 'Experto', nextRound: 'Siguiente ronda', playAgain: 'Otra vez', createRoom: 'Crear sala', join: 'Unirse', yaniv: '¡Yaniv!', assaf: '¡Assaf!', roundN: 'Ronda {n}', yourTurn: 'Tu turno', scoreTable: 'Puntuación', menu: 'Menú', quitGame: 'Terminar partida', ptt: 'Mantén para hablar' },
+ar: { tagline: 'لعبة الورق الإسرائيلية', mCpu: 'ضد الكمبيوتر', mCpuD: '1–4 خصوم، 4 مستويات', mHot: 'هاتف واحد', mHotD: '2–4 لاعبين يتبادلون الهاتف', mNet: 'أونلاين مع الأصدقاء', mNetD: 'غرفة برمز وصوت', rules: 'القواعد', stats: 'إحصائيات', replays: 'الإعادة', settings: 'الإعدادات', about: 'حول', resume: 'متابعة', cancel: 'إلغاء', close: 'إغلاق', home: 'الرئيسية', startGame: 'ابدأ اللعب', yourName: 'اسمك', language: 'اللغة', theme: 'السمة', level: 'المستوى', opponents: 'الخصوم', lvl0: 'سهل', lvl1: 'متوسط', lvl2: 'صعب', lvl3: 'خبير', nextRound: 'الجولة التالية', playAgain: 'مرة أخرى', createRoom: 'إنشاء غرفة', join: 'انضمام', yaniv: '!يانيف', assaf: '!أساف', roundN: 'الجولة {n}', yourTurn: 'دورك', scoreTable: 'جدول النقاط', menu: 'القائمة', quitGame: 'إنهاء اللعبة', ptt: 'اضغط للتحدث' }
+};
+
+/* =====================================================================
+   YanivNest — app core (storage · settings · screens · cards · sound)
+   ===================================================================== */
+const APP_VERSION = '1.0.0';
+const $ = s => document.querySelector(s), $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const P = 'yaniv_';
+
+/* ---------- storage shim: localStorage with an in-memory fallback ---------- */
+const LS = (() => {
+  const mem = {}; let ok = true;
+  try { localStorage.setItem(P + 't', '1'); localStorage.removeItem(P + 't'); } catch (e) { ok = false; }
+  return {
+    get(k, d) { try { const v = ok ? localStorage.getItem(P + k) : mem[k]; return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { const s = JSON.stringify(v); try { if (ok) localStorage.setItem(P + k, s); else mem[k] = s; return true; } catch (e) { toast(T('saveFail')); return false; } },
+    del(k) { try { if (ok) localStorage.removeItem(P + k); else delete mem[k]; } catch (e) {} },
+    keys() { const out = []; try { if (ok) for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith(P)) out.push(k.slice(P.length)); } else out.push(...Object.keys(mem)); } catch (e) {} return out; }
+  };
+})();
+
+const ST = Object.assign({
+  name: '', lang: 'he', theme: 'gold', mode: 'night', board: 'felt', sound: true, vib: true, showKnown: true, speed: 'normal', guided: false,
+  rules: Object.assign({}, YE.DEFAULTS), botN: 1, botLvl: 2, hotN: 2, hotNames: []
+}, LS.get('settings', {}));
+ST.rules = Object.assign({}, YE.DEFAULTS, ST.rules || {});
+const saveST = () => LS.set('settings', ST);
+const STATS = Object.assign({ cpu: {}, hot: {}, net: {}, how: {} }, LS.get('stats', {}));
+const saveStats = () => LS.set('stats', STATS);
+let REPLAYS = LS.get('replays', []);
+
+/* ---------- i18n ---------- */
+const T = (k, o) => {
+  const L = LANG[ST.lang] || LANG.en;
+  let s = L[k] != null ? L[k] : (LANG.en[k] != null ? LANG.en[k] : k);
+  if (o) for (const x in o) s = s.split('{' + x + '}').join(o[x]);
+  return s;
+};
+const RTL = () => ST.lang === 'he' || ST.lang === 'ar';
+function applyLang() {
+  document.documentElement.lang = ST.lang; document.documentElement.dir = RTL() ? 'rtl' : 'ltr';
+  $$('[data-t]').forEach(el => el.textContent = T(el.dataset.t));
+  $$('.back').forEach(b => b.textContent = RTL() ? '→' : '←');
+  const pt = $('#vPtt'); if (pt) pt.textContent = '🎙 ' + T('ptt');
+}
+function applyLook() {
+  const d = document.documentElement;
+  d.dataset.theme = ST.theme; d.dataset.mode = ST.mode; d.dataset.board = ST.board;
+  const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = ST.mode === 'day' ? '#f4f2ec' : '#0a0a0a';
+}
+const THEMES = ['gold', 'silver', 'emerald', 'ruby', 'ocean'];
+
+/* ---------- screens + toast ---------- */
+let SCREEN = 'home';
+function show(id) {
+  $$('.scr').forEach(s => s.classList.toggle('on', s.id === id)); SCREEN = id; window.scrollTo(0, 0);
+  if (id === 'game') requestAnimationFrame(sizeCards);
+}
+let toastT = null;
+function toast(msg, ms) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), ms || 2600); }
+function overlay(html, cls) {
+  const o = document.createElement('div'); o.className = 'ov ' + (cls || ''); o.innerHTML = '<div class="box">' + html + '</div>';
+  $('#ovs').appendChild(o); return o;
+}
+const closeOv = o => { if (o && o.parentNode) o.parentNode.removeChild(o); };
+function confirmBox(msg, yes, cb) {
+  const o = overlay('<p style="font-size:17px">' + esc(msg) + '</p><div class="row" style="margin-top:12px"><button class="btn" data-n>' + T('cancel') + '</button><button class="btn main" data-y>' + esc(yes || T('ok')) + '</button></div>');
+  o.querySelector('[data-n]').onclick = () => closeOv(o);
+  o.querySelector('[data-y]').onclick = () => { closeOv(o); cb(); };
+}
+
+/* ---------- cards ---------- */
+const SUITS = ['♠', '♥', '♦', '♣'], RL = ['', 'A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+function cardHTML(c, cls, attrs) {
+  cls = cls || ''; attrs = attrs || '';
+  if (c == null) return '<div class="pc cback ' + cls + '" ' + attrs + '></div>';
+  if (YE.isJ(c)) return '<div class="pc jk ' + cls + '" data-c="' + c + '" ' + attrs + ' aria-label="Joker"><div class="pip">★</div><div class="jt">JOKER</div></div>';
+  const s = YE.suit(c), r = YE.rank(c), red = s === 1 || s === 2, lab = RL[r] + SUITS[s];
+  const mid = r > 10 ? '<div class="face">' + RL[r] + '</div><span class="v">10</span>' : '<div class="pip">' + SUITS[s] + '</div>';
+  return '<div class="pc ' + (red ? 'red ' : '') + cls + '" data-c="' + c + '" ' + attrs + ' aria-label="' + lab + '"><div class="ix">' + RL[r] + '<s>' + SUITS[s] + '</s></div>' + mid + '<div class="ix b">' + RL[r] + '<s>' + SUITS[s] + '</s></div></div>';
+}
+// every card label is a left-to-right isolate (LRI…PDI), so Hebrew text never flips "K♣" into "♣K"
+const cardTxt = c => '\u2066' + (YE.isJ(c) ? '★' : RL[YE.rank(c)] + SUITS[YE.suit(c)]) + '\u2069';
+const cardsTxt = cs => '\u2066' + cs.map(cardTxt).join(' ') + '\u2069';
+
+/* ---------- sound (synthesised, no files) ---------- */
+let AC = null;
+function beep(kind) {
+  if (!ST.sound) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const now = AC.currentTime, notes = { card: [[520, .05, .06]], take: [[380, .05, .07]], turn: [[660, .07, .05], [880, .07, .05]], yaniv: [[523, .12, .1], [659, .12, .1], [784, .22, .12]], assaf: [[300, .16, .12], [220, .3, .12]], win: [[523, .1, .1], [659, .1, .1], [784, .1, .1], [1046, .3, .12]] }[kind] || [];
+    let t = now;
+    for (const [f, d, g] of notes) {
+      const o = AC.createOscillator(), v = AC.createGain(); o.type = kind === 'card' || kind === 'take' ? 'triangle' : 'sine'; o.frequency.value = f;
+      v.gain.setValueAtTime(g, t); v.gain.exponentialRampToValueAtTime(.0001, t + d); o.connect(v); v.connect(AC.destination); o.start(t); o.stop(t + d + .02); t += d * .8;
+    }
+  } catch (e) {}
+}
+const buzz = ms => { if (ST.vib && navigator.vibrate && (!navigator.userActivation || navigator.userActivation.hasBeenActive)) try { navigator.vibrate(ms || 25); } catch (e) {} };
+
+/* ---------- stats helpers ---------- */
+function stat(mode) { return STATS[mode] || (STATS[mode] = {}); }
+function inc(mode, k, n) { const s = stat(mode); s[k] = (s[k] || 0) + (n == null ? 1 : n); }
+
+/* =====================================================================
+   YanivNest — game screen + controllers
+   CUR.mode: 'cpu' (vs computer) · 'hot' (one phone) · 'net' (online; host owns G, guest gets views)
+   ===================================================================== */
+let CUR = null;
+const BOTS = { he: ['דני', 'מיכל', 'יוסי', 'נועה', 'אבי'], en: ['Danny', 'Michelle', 'Yossi', 'Noa', 'Avi'] };
+const botName = i => (BOTS[ST.lang] || BOTS.en)[i % 5];
+const isGuest = () => CUR && CUR.mode === 'net' && !CUR.host;
+const curView = () => !CUR ? null : isGuest() ? CUR.V : YE.view(CUR.G, CUR.me);
+const myTurn = V => !!V && V.me >= 0 && V.turn === V.me && !V.end && !V.over && !(CUR.mode === 'hot' && CUR.passing) && !CUR.pending;
+const pname = (V, s) => { const p = V.players[s]; return p ? (p.name || T('player') + ' ' + (s + 1)) : ''; };
+const lvlName = l => T(['lvl0', 'lvl1', 'lvl2', 'lvl3'][l] || 'lvl2');
+
+function newCur(mode, G, me, extra) {
+  CUR = Object.assign({ mode, G, me, host: true, sel: [], hints: 0, endKey: '', overKey: '', lastKey: '', turnKey: '', prevHand: null, newCard: null, botT: null, passing: false, pending: false, yArm: 0, bubbles: {}, talk: {}, id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), started: Date.now() }, extra || {});
+  return CUR;
+}
+function startLocal(mode, players, cfg) {
+  const G = YE.newGame(players, cfg);
+  newCur(mode, G, mode === 'hot' ? -2 : 0);
+  closeAllOv(); show('game'); after();
+}
+function saveCur() {
+  if (!CUR || !CUR.G) return;
+  if (CUR.mode === 'net') { saveNet(); return; }
+  if (CUR.G.over) { LS.del('game'); return; }
+  LS.set('game', { mode: CUR.mode, G: CUR.G, me: CUR.me, hints: CUR.hints, id: CUR.id, started: CUR.started });
+}
+function resumeLocal() {
+  const s = LS.get('game', null); if (!s || !s.G) return false;
+  newCur(s.mode, s.G, s.mode === 'hot' ? -2 : s.me, { hints: s.hints || 0, id: s.id || 'g', started: s.started || Date.now() });
+  closeAllOv(); show('game'); after(); return true;
+}
+function closeAllOv() { $('#ovs').innerHTML = ''; }
+
+/* ---------- after every change ---------- */
+function after() {
+  if (!CUR) return;
+  const G = CUR.G;
+  if (G) {
+    if (CUR.mode === 'cpu' && G.players[0].out && !G.over) YE.finish(G);
+    saveCur();
+    if (CUR.mode === 'net' && CUR.host) pushViews();
+  }
+  render();
+  scheduleBot();
+}
+function scheduleBot() {
+  if (!CUR) return; clearTimeout(CUR.botT);
+  if (!CUR.G || isGuest()) return;
+  const G = CUR.G, R = G.round; if (G.over || R.end) return;
+  const s = R.turn, p = G.players[s]; if (p.kind !== 'bot') return;
+  const delay = { slow: 1600, normal: 950, fast: 380 }[ST.speed] || 950, me = CUR;
+  CUR.botT = setTimeout(() => {
+    if (CUR !== me || G.round !== R || R.turn !== s || R.end) return;
+    let d; try { d = YAI.decide(YE.view(G, s), p.lvl); } catch (e) { console.error(e); d = null; }
+    let r = d ? (d.y ? YE.yaniv(G, s) : YE.play(G, s, d.t, d.k)) : { ok: false };
+    if (!r.ok) { const h = R.hands[s]; r = YE.play(G, s, [h[0]], 'd'); }
+    beep(d && d.y ? 'yaniv' : 'card'); after();
+  }, delay);
+}
+
+/* ---------- my actions ---------- */
+function act(a) {
+  const V = curView(); if (!myTurn(V)) return;
+  CUR.prevHand = V.hand.slice(); CUR.yArm = 0;
+  if (isGuest()) {
+    CUR.pending = true; netSend({ type: 'act', gid: NET.gid, rn: V.rn, turns: V.turns, a }); render();
+    const me = CUR; setTimeout(() => { if (CUR === me && CUR.pending) { CUR.pending = false; render(); } }, 9000);
+    return;
+  }
+  const r = a.y ? YE.yaniv(CUR.G, CUR.me) : YE.play(CUR.G, CUR.me, a.t, a.k);
+  if (!r.ok) { toast(T('illegal')); return; }
+  CUR.sel = []; CUR.hintTake = null;
+  if (!a.y) { CUR.newCard = r.drew; beep(a.k === 'd' ? 'card' : 'take'); }
+  after();
+}
+function tryTake(k) {
+  const V = curView(); if (!myTurn(V)) return;
+  const sel = CUR.sel.filter(c => V.hand.includes(c));
+  if (!sel.length) { toast(T('pickFirst')); return; }
+  if (!YE.classify(sel)) { toast(T('notLegal')); return; }
+  act({ t: sel, k });
+}
+function doYaniv() {
+  const V = curView(); if (!myTurn(V) || YE.sum(V.hand) > V.cfg.limit) return;
+  if (!CUR.yArm || Date.now() - CUR.yArm > 2600) { CUR.yArm = Date.now(); renderBar(V); buzz(15); setTimeout(() => { if (CUR && CUR.yArm && Date.now() - CUR.yArm >= 2500) { CUR.yArm = 0; renderBar(curView()); } }, 2700); return; }
+  act({ y: 1 });
+}
+function doHint() {
+  const V = curView(); if (!myTurn(V)) return;
+  CUR.hints++; const d = YAI.hint(V);
+  if (d.y) { toast(T('hintYaniv')); CUR.yArm = 0; render(); return; }
+  CUR.sel = d.t.slice(); CUR.hintTake = d.k; saveCur(); render();
+  toast(d.k === 'd' ? T('hintDeck') : T('hintTake', { c: cardTxt(d.k) }));
+}
+function doBest() {
+  const V = curView(); if (!V || !V.hand.length) return;
+  let b = null; for (const t of YE.throws(V.hand)) if (!b || t.pts > b.pts || (t.pts === b.pts && t.cards.length > b.cards.length)) b = t;
+  CUR.sel = b.cards.slice(); CUR.hintTake = null; render();
+}
+function nextRound() {
+  if (!CUR) return;
+  if (isGuest()) return;
+  if (!YE.nextRound(CUR.G)) return;
+  CUR.sel = []; CUR.hintTake = null; closeAllOv();
+  if (CUR.mode === 'hot') CUR.me = -2;
+  after();
+}
+
+/* ---------- rendering ---------- */
+function render() {
+  if (!CUR || SCREEN !== 'game') return;
+  const V = curView(); if (!V) return;
+  if (CUR.mode === 'hot') passCheck(V);
+  CUR.sel = CUR.sel.filter(c => V.hand.includes(c));
+  renderTop(V); renderOpps(V); renderTable(V); renderHand(V); renderBar(V);
+  const tk = V.rn + ':' + V.turn;
+  if (myTurn(V) && CUR.turnKey !== tk && V.turns > 0) { beep('turn'); buzz(); }
+  CUR.turnKey = tk;
+  handleEnd(V);
+}
+function renderTop(V) {
+  const mode = { cpu: T('mCpu'), hot: T('mHot'), net: T('mNet') }[CUR.mode];
+  $('#gTitle').textContent = T('roundN', { n: V.rn });
+  $('#gSub').textContent = mode + ' · ' + T('toPts', { n: V.cfg.max });
+  const gn = $('#gNet'); gn.classList.toggle('hide', CUR.mode !== 'net');
+  if (CUR.mode === 'net') { const st = LINK ? LINK.status : 'off'; gn.textContent = T('st_' + st); gn.className = 'net ' + (st === 'open' ? 'ok' : st === 'waiting' ? '' : 'warn'); }
+  $('#voice').classList.toggle('hide', CUR.mode !== 'net');
+}
+function seatOrder(V) { const n = V.players.length, out = [], base = V.me >= 0 ? V.me : -1; for (let k = 1; k <= n; k++) { const s = (base + k + n) % n; if (s !== V.me) out.push(s); } return out; }
+function renderOpps(V) {
+  const now = Date.now();
+  $('#opps').innerHTML = seatOrder(V).map(s => {
+    const p = V.players[s], kn = ST.showKnown ? p.known : [], backs = Math.max(0, p.count - kn.length), ni = netInfo(s);
+    let mini = ''; for (let i = 0; i < Math.min(backs, 7); i++) mini += cardHTML(null);
+    mini += kn.map(c => cardHTML(c, 'kn')).join('');
+    const b = CUR.bubbles[s] && CUR.bubbles[s].until > now ? CUR.bubbles[s] : null;
+    return '<div class="opp' + (V.turn === s && !V.end ? ' turn' : '') + (p.out ? ' out' : '') + '" data-s="' + s + '">'
+      + '<div class="nm">' + (p.kind === 'bot' ? '🤖 ' : '') + esc(pname(V, s)) + (ni && !ni.online && p.kind !== 'bot' ? ' <span class="off">● ' + T('offline') + '</span>' : '') + '</div>'
+      + '<div class="sc">' + T('pts', { n: '<span class="ltr">' + p.score + '</span>' }) + (p.out ? ' · ' + T('outTag') : '') + '</div>'
+      + '<div class="mini">' + (p.out ? '' : mini + '<span class="cnt">' + p.count + '</span>') + '</div>'
+      + (ni && ni.talking ? '<span class="talk">🎙 ' + T('talking') + '</span>' : '')
+      + (b ? '<div class="bubble ' + b.cls + '" ' + (b.url ? 'data-vm="' + s + '"' : '') + '>' + b.html + '</div>' : '') + '</div>';
+  }).join('');
+}
+function actText(V, a) {
+  if (!a) return '';
+  if (a.y) return '';
+  const who = a.s === V.me ? T('you') : pname(V, a.s), what = cardsTxt(a.t);
+  const took = a.k === 'd' ? T('fromDeck') : T('took', { c: (a.s === V.me || V.players[a.s].known.includes(a.k)) ? cardTxt(a.k) : '?' });
+  return T('actLine', { who: esc(who), what, took });
+}
+function renderTable(V) {
+  const mine = myTurn(V), sel = CUR.sel, valid = sel.length && YE.classify(sel);
+  let st;
+  if (V.over) st = T('gameOver');
+  else if (V.end) st = T('roundOver');
+  else if (CUR.mode === 'hot' && CUR.passing) st = T('passing');
+  else if (CUR.pending) st = T('sending');
+  else if (V.me < 0 && CUR.mode === 'net') st = T('spectator') + ' · ' + T('turnOf', { n: esc(pname(V, V.turn)) });
+  else if (mine) st = T('yourTurn');
+  else st = (V.players[V.turn].kind === 'bot' ? T('thinking', { n: esc(pname(V, V.turn)) }) : T('turnOf', { n: esc(pname(V, V.turn)) }));
+  $('#status').innerHTML = st;
+  $('#deckStack').innerHTML = cardHTML(null) + cardHTML(null) + cardHTML(null);
+  $('#deckLb').textContent = T('deckN', { n: V.deck });
+  const tk = YE.takeable(V.top), key = V.rn + ':' + V.turns;
+  const fresh = CUR.lastKey !== key; CUR.lastKey = key;
+  $('#topcards').innerHTML = V.top.order.map(c => cardHTML(c, (tk.includes(c) ? 'can ' : '') + (CUR.hintTake === c ? 'pick ' : '') + (fresh && V.turns > 0 ? 'drop' : ''), tk.includes(c) ? 'data-take="' + c + '"' : '')).join('');
+  $('#topLb').textContent = V.top.by < 0 ? T('openCard') : T('thrownBy', { n: V.top.by === V.me ? T('you') : pname(V, V.top.by) });
+  const db = $('#deckbox'); db.classList.add('can'); db.classList.toggle('pick', CUR.hintTake === 'd');
+  $('#table').classList.toggle('go', !!(mine && valid));
+  $('#lastact').innerHTML = actText(V, V.last);
+}
+function renderHand(V) {
+  const el = $('#cards'), hidden = CUR.mode === 'hot' && CUR.passing;
+  if (hidden || V.me < 0) el.innerHTML = V.me < 0 && CUR.mode === 'net' ? '<span class="muted">' + T('spectator') + '</span>' : V.hand.map(() => cardHTML(null)).join('');
+  else {
+    if (CUR.prevHand && CUR.newCard == null) { const n = V.hand.find(c => !CUR.prevHand.includes(c)); if (n != null) CUR.newCard = n; }
+    el.innerHTML = V.hand.map(c => cardHTML(c, (CUR.sel.includes(c) ? 'sel ' : '') + (CUR.newCard === c ? 'new' : ''), 'role="button" tabindex="0"')).join('');
+    CUR.newCard = null; CUR.prevHand = null;
+  }
+  el.classList.toggle('wait', !myTurn(V));
+  const s = V.me >= 0 && !hidden ? YE.sum(V.hand) : null;
+  const sm = $('#sum'); sm.textContent = s == null ? '' : T('sum', { n: s }); sm.classList.toggle('low', s != null && s <= V.cfg.limit);
+  const cb = $('#combo'), sel = CUR.sel;
+  if (!sel.length || hidden) cb.classList.add('hide');
+  else { const k = YE.classify(sel); cb.classList.remove('hide'); cb.className = 'combo ' + (k ? 'ok' : 'bad'); cb.innerHTML = k ? T('k_' + k.kind) + ' · ' + T('ptsShort', { n: YE.sum(sel) }) : T('notLegal'); }
+  $('#myScore').innerHTML = V.me >= 0 ? T('myScore', { n: '<span class="ltr">' + V.players[V.me].score + '</span>' }) : '';
+  requestAnimationFrame(sizeCards);
+}
+function renderBar(V) {
+  if (!V) return;
+  const mine = myTurn(V), y = $('#bYaniv'), can = mine && YE.sum(V.hand) <= V.cfg.limit;
+  y.disabled = !can; const armed = can && CUR.yArm && Date.now() - CUR.yArm < 2600;
+  y.textContent = armed ? T('yanivSure') : T('yaniv');
+  $('#bHint').disabled = !mine; $('#bBest').textContent = '✨ ' + T('best');
+  $('#bBest').disabled = V.me < 0 || (CUR.mode === 'hot' && CUR.passing); $('#bClear').disabled = !CUR.sel.length;
+  $('#gbar').classList.toggle('hide', V.me < 0);
+}
+function sizeCards() {
+  const g = $('#game'); if (!g || !g.classList.contains('on')) return;
+  const land = matchMedia('(orientation:landscape) and (max-height:560px)').matches;
+  const V = CUR ? curView() : null, n = Math.max(5, V ? V.hand.length : 5);
+  const handW = land ? g.clientWidth * 0.44 : g.clientWidth, H = g.clientHeight;
+  let hw = Math.min(90, Math.floor((handW - 24) / n) - 6, Math.floor((land ? H * 0.4 : H * 0.17) / 1.42));
+  hw = Math.max(46, hw);
+  const tw = Math.max(40, Math.min(86, Math.floor((land ? H * 0.28 : H * 0.135) / 1.42)));
+  g.style.setProperty('--hw', hw + 'px'); g.style.setProperty('--tw', tw + 'px');
+  $('#cards').classList.toggle('tight', (hw + 6) * n > handW - 12);
+}
+
+/* ---------- one phone: hide the hand between turns ---------- */
+function passCheck(V) {
+  const G = CUR.G, R = G.round;
+  if (V.end || V.over) { if (CUR.passOv) { closeOv(CUR.passOv); CUR.passOv = null; } CUR.passing = false; return; }
+  if (R.turn === CUR.me && !CUR.passing) return;
+  if (CUR.passing && CUR.passTo === R.turn) return;
+  CUR.passing = true; CUR.passTo = R.turn; CUR.sel = [];
+  if (CUR.passOv) closeOv(CUR.passOv);
+  const nm = esc(G.players[R.turn].name || T('player') + ' ' + (R.turn + 1));
+  const o = CUR.passOv = overlay('<div style="font-size:54px">📱</div><h2>' + T('passTo', { n: nm }) + '</h2><p class="muted">' + T('passHint') + '</p><button class="btn main wide" id="passGo">' + T('passGo', { n: nm }) + '</button>', 'pass');
+  o.querySelector('#passGo').onclick = () => { CUR.me = R.turn; CUR.passing = false; CUR.passOv = null; closeOv(o); render(); };
+}
+
+/* ---------- round end + game over ---------- */
+function handleEnd(V) {
+  if (!V.end) { if (CUR.resOv) { closeOv(CUR.resOv); CUR.resOv = null; } return; }
+  const key = CUR.id + ':' + V.rn;
+  if (CUR.endKey === key) return;
+  CUR.endKey = key;
+  trackRound(V);
+  const st = $('#stamp'), b = st.querySelector('b'), as = V.end.assaf != null;
+  b.textContent = as ? T('assaf') : T('yaniv'); b.className = as ? 'as' : '';
+  st.classList.remove('hide'); beep(as ? 'assaf' : 'yaniv'); buzz(as ? 80 : 40);
+  setTimeout(() => { st.classList.add('hide'); if (CUR && CUR.endKey === key) showResults(curView()); }, 1400);
+}
+function showResults(V) {
+  if (!V || !V.end) return;
+  if (CUR.resOv) closeOv(CUR.resOv);
+  const E = V.end, caller = pname(V, E.caller);
+  const head = E.assaf != null ? T('assafLine', { a: esc(pname(V, E.assaf)), c: esc(caller), n: E.sums[E.caller] }) : T('yanivLine', { c: esc(caller), n: E.sums[E.caller] });
+  const rows = V.players.map((p, s) => {
+    if (E.hands[s].length === 0 && E.before[s] === E.after[s] && !E.add[s] && p.out && !E.outNow.includes(s)) return '';
+    const tags = (s === E.caller ? '<span class="tag' + (E.assaf != null ? ' red' : '') + '">' + T('yaniv') + '</span>' : '') + (s === E.assaf ? '<span class="tag">' + T('assaf') + '</span>' : '') + (E.halved.includes(s) ? '<span class="tag">' + T('halved') + '</span>' : '') + (E.outNow.includes(s) ? '<span class="tag red">' + T('outTag') + '</span>' : '');
+    const win = (E.assaf != null ? s === E.assaf : s === E.caller);
+    return '<div class="rp ' + (win ? 'win' : E.outNow.includes(s) ? 'lose' : '') + '"><div class="top"><span>' + (p.kind === 'bot' ? '🤖 ' : '') + esc(pname(V, s)) + tags + '</span><span>' + T('rowPts', { s: '<span class="ltr">' + E.sums[s] + '</span>', a: '<span class="ltr">+' + E.add[s] + '</span>', t: '<b class="ltr">' + E.after[s] + '</b>' }) + '</span></div><div class="cs">' + E.hands[s].map(c => cardHTML(c)).join('') + '</div></div>';
+  }).join('');
+  const btn = V.over ? '<button class="btn main" id="rNext">' + T('summary') + '</button>' : isGuest() ? '<button class="btn main" disabled>' + T('waitHost') + '</button>' : '<button class="btn main" id="rNext">' + T('nextRound') + '</button>';
+  const o = CUR.resOv = overlay('<h2>' + T('roundN', { n: V.rn }) + '</h2><p>' + head + '</p><div class="res">' + rows + '</div><div class="row"><button class="btn" id="rTable">🏆 ' + T('scoreTable') + '</button>' + btn + '</div>');
+  o.querySelector('#rTable').onclick = () => scoreTable(curView());
+  const nx = o.querySelector('#rNext'); if (nx) nx.onclick = () => { if (V.over) { closeOv(o); CUR.resOv = null; showOver(curView()); } else nextRound(); };
+}
+function trackRound(V) {
+  const mode = CUR.mode, E = V.end, me = V.me;
+  inc(mode, 'rounds');
+  if (mode !== 'hot' && me >= 0) {
+    if (E.caller === me) { inc(mode, 'calls'); if (E.assaf == null) inc(mode, 'yanivs'); else inc(mode, 'caught'); }
+    if (E.assaf === me) inc(mode, 'assafs');
+  }
+  if (V.over) {
+    inc(mode, 'games'); if (mode !== 'hot' && V.winner === me) inc(mode, 'wins');
+    if (mode === 'cpu') { const lv = V.players[1] ? V.players[1].lvl : 2; inc('cpu', 'g' + lv); if (V.winner === me) inc('cpu', 'w' + lv); }
+    if (CUR.G) saveReplay();
+  }
+  saveStats();
+}
+function showOver(V) {
+  const order = V.players.map((p, s) => s).sort((a, b) => (V.players[a].out - V.players[b].out) || (V.players[a].score - V.players[b].score));
+  const iWon = V.winner === V.me && CUR.mode !== 'hot';
+  if (iWon || CUR.mode === 'hot') beep('win');
+  const title = CUR.mode === 'hot' || V.me < 0 ? T('winnerIs', { n: esc(pname(V, V.winner)) }) : iWon ? T('youWon') : T('youLost', { n: esc(pname(V, V.winner)) });
+  const rows = order.map((s, i) => '<tr' + (s === V.winner ? ' class="tot"' : '') + '><td>' + (i + 1) + '</td><td>' + esc(pname(V, s)) + '</td><td class="ltr">' + V.players[s].score + '</td><td>' + (V.players[s].out ? T('outTag') : '') + '</td></tr>').join('');
+  const askHow = iWon && CUR.mode === 'cpu' && V.players[1] && V.players[1].lvl >= 2;
+  const how = askHow ? '<div class="card" style="margin-top:12px"><h3>' + T('howWon') + '</h3><div class="seats">' + ['how1', 'how2', 'how3', 'how4'].map(k => '<button class="btn small" data-how="' + k + '">' + T(k) + '</button>').join('') + '</div></div>' : '';
+  const again = isGuest() ? '' : '<button class="btn main" id="oAgain">' + T('playAgain') + '</button>';
+  const o = overlay('<h2>' + (iWon ? '🏆 ' : '') + title + '</h2><table class="sc"><tr><th>#</th><th>' + T('player') + '</th><th>' + T('points') + '</th><th></th></tr>' + rows + '</table>'
+    + (CUR.hints ? '<p class="muted">' + T('hintsUsed', { n: CUR.hints }) + '</p>' : '') + how
+    + '<div class="row" style="margin-top:12px"><button class="btn" id="oHome">' + T('home') + '</button><button class="btn" id="oRep">🎬 ' + T('replay') + '</button>' + again + '</div>');
+  o.querySelectorAll('[data-how]').forEach(b => b.onclick = () => { STATS.how[b.dataset.how] = (STATS.how[b.dataset.how] || 0) + 1; saveStats(); o.querySelector('.card').innerHTML = '<p>' + T('howThanks') + '</p>'; });
+  o.querySelector('#oHome').onclick = () => { closeAllOv(); leaveGame(); };
+  o.querySelector('#oRep').onclick = () => { const r = REPLAYS[0]; if (r) openReplay(r); else toast(T('noReplay')); };
+  const ag = o.querySelector('#oAgain'); if (ag) ag.onclick = () => { closeAllOv(); playAgain(); };
+}
+function playAgain() {
+  if (!CUR) return;
+  const G = CUR.G, players = G.players.map(p => ({ name: p.name, kind: p.kind, lvl: p.lvl }));
+  if (CUR.mode === 'net') { netRestart(); return; }
+  startLocal(CUR.mode, players, G.cfg);
+}
+function leaveGame() {
+  if (CUR && CUR.G && CUR.G.over && CUR.mode !== 'net') LS.del('game');
+  if (CUR) clearTimeout(CUR.botT);
+  if (CUR && CUR.mode === 'net' && CUR.G && CUR.G.over && CUR.host) { /* keep the room open for a rematch */ }
+  closeAllOv(); show('home'); renderHome();
+}
+function scoreTable(V) {
+  if (!V) return;
+  const H = V.history, ps = V.players;
+  const head = '<tr><th>#</th>' + ps.map((p, s) => '<th>' + esc(pname(V, s)) + '</th>').join('') + '</tr>';
+  const rows = H.map(h => '<tr><td>' + h.rn + '</td>' + ps.map((p, s) => '<td><span class="ltr">' + (h.add[s] ? '+' + h.add[s] : (s === h.caller && h.assaf == null ? '✓' : s === h.assaf ? '★' : '0')) + '</span></td>').join('') + '</tr>').join('');
+  const tot = '<tr class="tot"><td>Σ</td>' + ps.map(p => '<td class="ltr">' + p.score + (p.out ? ' ✕' : '') + '</td>').join('') + '</tr>';
+  const o = overlay('<h2>🏆 ' + T('scoreTable') + '</h2><div style="overflow-x:auto"><table class="sc">' + head + rows + tot + '</table></div><p class="muted" style="font-size:13px">' + T('tableKey', { n: V.cfg.max }) + '</p><button class="btn wide" data-x>' + T('close') + '</button>');
+  o.querySelector('[data-x]').onclick = () => closeOv(o);
+}
+function gameMenu() {
+  const host = CUR.mode === 'net' && CUR.host && CUR.G && !CUR.G.over;
+  const offline = host ? CUR.G.players.map((p, s) => ({ p, s })).filter(x => x.p.kind === 'human' && x.s !== 0 && netInfo(x.s) && !netInfo(x.s).online) : [];
+  const o = overlay('<h2>' + T('menu') + '</h2><div class="seats">'
+    + '<button class="btn" data-m="rules">📖 ' + T('rules') + '</button>'
+    + '<button class="btn" data-m="sound">' + (ST.sound ? '🔇 ' + T('soundOff') : '🔊 ' + T('soundOn')) + '</button>'
+    + '<button class="btn" data-m="big">↔️ ' + T('bigBoard') + '</button>'
+    + offline.map(x => '<button class="btn" data-bot="' + x.s + '">🤖 ' + T('replaceBot', { n: esc(x.p.name) }) + '</button>').join('')
+    + '<button class="btn" data-m="quit" style="border-color:var(--bad);color:var(--bad)">' + T('quitGame') + '</button>'
+    + '<button class="btn" data-m="x">' + T('close') + '</button></div>');
+  o.onclick = e => {
+    const b = e.target.closest('button'); if (!b) return;
+    const m = b.dataset.m;
+    if (b.dataset.bot) { const p = CUR.G.players[+b.dataset.bot]; p.kind = 'bot'; p.lvl = 2; p.name = p.name + ' 🤖'; closeOv(o); after(); return; }
+    if (m === 'x') closeOv(o);
+    else if (m === 'rules') { closeOv(o); openRules(true); }
+    else if (m === 'sound') { ST.sound = !ST.sound; saveST(); closeOv(o); }
+    else if (m === 'big') { closeOv(o); bigBoard(); }
+    else if (m === 'quit') { closeOv(o); confirmBox(T('quitQ'), T('quitGame'), quitGame); }
+  };
+}
+function bigBoard() {
+  const d = document.documentElement;
+  const p = d.requestFullscreen ? d.requestFullscreen() : null;
+  Promise.resolve(p).then(() => screen.orientation && screen.orientation.lock ? screen.orientation.lock('landscape') : null).catch(() => {}).then(() => setTimeout(sizeCards, 300));
+  if (!d.requestFullscreen) toast(T('rotateHint'));
+}
+function quitGame() {
+  if (!CUR) return;
+  clearTimeout(CUR.botT);
+  if (CUR.mode === 'net') netLeave(true);
+  else LS.del('game');
+  CUR = null; closeAllOv(); show('home'); renderHome();
+}
+
+/* ---------- forgiving taps ---------- */
+function bindGame() {
+  $('#cards').addEventListener('click', e => {
+    const el = e.target.closest('.pc[data-c]'); if (!el || !CUR) return;
+    const V = curView(); if (V.me < 0 || (CUR.mode === 'hot' && CUR.passing)) return;
+    const c = +el.dataset.c, i = CUR.sel.indexOf(c);
+    if (i >= 0) CUR.sel.splice(i, 1); else CUR.sel.push(c);
+    CUR.hintTake = null; renderHand(V); renderTable(V); renderBar(V);
+  });
+  $('#cards').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.target.click(); } });
+  // tap on the table: exact target first, then the nearest target (magnet); a far tap keeps the selection
+  $('#table').addEventListener('click', e => {
+    if (!CUR) return; const V = curView(); if (!myTurn(V)) return;
+    const t = e.target.closest('[data-take]');
+    if (t) { tryTake(+t.dataset.take); return; }
+    if (e.target.closest('#deckbox')) { tryTake('d'); return; }
+    if (!CUR.sel.length) return;
+    const tg = [{ el: $('#deckbox .stack'), k: 'd' }].concat($$('#topcards [data-take]').map(el => ({ el, k: +el.dataset.take })));
+    let best = null, bd = 1e9;
+    for (const x of tg) { const r = x.el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, d = Math.hypot(e.clientX - cx, e.clientY - cy); if (d < bd) { bd = d; best = { x, r }; } }
+    if (best && bd < Math.max(best.r.width, best.r.height) * 0.95) tryTake(best.x.k);
+  });
+  $('#bYaniv').onclick = doYaniv; $('#bHint').onclick = doHint; $('#bBest').onclick = doBest;
+  $('#bClear').onclick = () => { if (CUR) { CUR.sel = []; CUR.hintTake = null; render(); } };
+  $('#gScore').onclick = () => scoreTable(curView());
+  $('#gMenu').onclick = gameMenu;
+  $('#gBack').onclick = () => { if (CUR) clearTimeout(CUR.botT); closeAllOv(); show('home'); renderHome(); };
+  $('#opps').addEventListener('click', e => { const b = e.target.closest('[data-vm]'); if (b) { const bb = CUR.bubbles[b.dataset.vm]; if (bb && bb.url) new Audio(bb.url).play().catch(() => {}); } });
+  addEventListener('resize', () => requestAnimationFrame(sizeCards));
+}
+function bubble(seat, html, cls, ms, url) {
+  if (!CUR) return;
+  CUR.bubbles[seat] = { html, cls: cls || '', until: Date.now() + (ms || 3500), url };
+  const V = curView(); if (V && SCREEN === 'game') renderOpps(V);
+  setTimeout(() => { const V2 = curView(); if (V2 && SCREEN === 'game') renderOpps(V2); }, (ms || 3500) + 50);
+}
+
+/* ---------- replays (seed + moves → every state) ---------- */
+function saveReplay() {
+  const G = CUR.G; if (!G || !G.log) return;
+  const rec = { id: CUR.id, date: Date.now(), mode: CUR.mode, players: G.players.map(p => ({ name: p.name, kind: p.kind, lvl: p.lvl })), cfg: G.cfg, seed: G.seed, log: G.log, winner: G.winner, me: CUR.mode === 'hot' ? 0 : CUR.me, final: G.players.map(p => p.score) };
+  addReplay(rec);
+  if (CUR.mode === 'net' && CUR.host) netSendAll({ type: 'rep', rec });
+}
+function addReplay(rec) { REPLAYS = [rec].concat(REPLAYS.filter(r => r.id !== rec.id)).slice(0, 10); LS.set('replays', REPLAYS); }
+function openReplay(rec) {
+  let ri = 0, fi = 0, frames = build(0);
+  function build(i) { const L = rec.log[i]; return YE.replayRound(rec.players, rec.cfg, rec.seed, L.rn, L.st, L.sc, L.out, L.acts); }
+  const o = overlay('<div class="rv" id="rvBox"></div>');
+  function draw() {
+    const L = rec.log[ri], f = frames[fi], a = f.last;
+    const nm = s => esc(rec.players[s].name || T('player') + ' ' + (s + 1));
+    let line = fi === 0 ? T('rvDeal') : a.y ? T('rvYaniv', { n: nm(a.s) }) : T('actLine', { who: nm(a.s), what: cardsTxt(a.t), took: a.k === 'd' ? T('fromDeck') : T('took', { c: cardTxt(a.k) }) });
+    if (f.end) line += ' · ' + (f.end.assaf != null ? T('assafLine', { a: nm(f.end.assaf), c: nm(f.end.caller), n: f.end.sums[f.end.caller] }) : T('yanivLine', { c: nm(f.end.caller), n: f.end.sums[f.end.caller] }));
+    o.querySelector('#rvBox').innerHTML = '<h2>🎬 ' + T('roundN', { n: L.rn }) + ' <span class="muted" style="font-size:15px">(' + (ri + 1) + '/' + rec.log.length + ')</span></h2>'
+      + '<p style="min-height:48px">' + line + '</p><div class="hands">' + f.hands.map((h, s) => h.length || !L.out[s] ? '<div class="rp' + (f.turn === s && !f.end ? ' win' : '') + '"><div class="top"><span>' + nm(s) + '</span><span class="ltr">' + YE.sum(h) + '</span></div><div class="cs">' + h.map(c => cardHTML(c)).join('') + '</div></div>' : '').join('') + '</div>'
+      + '<div class="rp"><div class="top"><span>' + T('onTable') + '</span><span>' + T('deckN', { n: f.deck }) + '</span></div><div class="cs">' + f.top.order.map(c => cardHTML(c)).join('') + '</div></div>'
+      + '<div class="row" style="margin-top:12px"><button class="btn" data-r="pr">⏮</button><button class="btn" data-r="p">◀</button><span class="ltr" style="text-align:center">' + fi + '/' + (frames.length - 1) + '</span><button class="btn" data-r="n">▶</button><button class="btn" data-r="nr">⏭</button></div>'
+      + '<button class="btn wide" style="margin-top:8px" data-r="x">' + T('close') + '</button>';
+  }
+  o.onclick = e => {
+    const b = e.target.closest('[data-r]'); if (!b) return; const r = b.dataset.r;
+    if (r === 'x') return closeOv(o);
+    if (r === 'n' && fi < frames.length - 1) fi++;
+    else if (r === 'p' && fi > 0) fi--;
+    else if (r === 'nr' && ri < rec.log.length - 1) { ri++; frames = build(ri); fi = 0; }
+    else if (r === 'pr' && ri > 0) { ri--; frames = build(ri); fi = 0; }
+    draw();
+  };
+  draw();
+}
+
+/* =====================================================================
+   YanivNest — online over NestLink 1.1
+   The host is the dealer: it owns the full game and sends every guest ONLY
+   its own view (sendTo). Guests send intents; the host validates and applies.
+   ===================================================================== */
+let LINK = null;
+let NET = LS.get('net', null);          // {role, sess, gid, map, bots, cfg, lobby, G (host), V (guest)}
+let netSaveT = null;
+function saveNet() {
+  if (!NET) { LS.del('net'); return; }
+  if (CUR && CUR.mode === 'net') { if (CUR.host) NET.G = CUR.G; else NET.V = CUR.V; NET.gid = CUR.id; }
+  LS.set('net', NET);
+}
+const saveNetSoon = () => { clearTimeout(netSaveT); netSaveT = setTimeout(saveNet, 250); };
+const netSend = d => { if (LINK) LINK.sendTo(0, d); };
+const netSendAll = d => { if (LINK) LINK.send(d); };
+const hostSide = () => NET && NET.role === 'host';
+const gameSeatOf = link => NET && NET.map && NET.map[link] != null ? NET.map[link] : -1;
+function linkOf(gs) { if (!NET || !NET.map) return null; for (const k in NET.map) if (NET.map[k] === gs) return +k; return null; }
+function netInfo(gs) {
+  if (!CUR || CUR.mode !== 'net') return null;
+  const L = linkOf(gs); if (L == null) return null;
+  const r = (LINK ? LINK.roster : []).find(p => p.seat === L);
+  return { online: L === (LINK && LINK.seat) ? true : !!(r && r.online), talking: !!CUR.talk[gs] };
+}
+// keep only the newest message of a type in each resend buffer (views are full snapshots)
+function compact(type) {
+  const S = LINK && LINK.session; if (!S || !S.links) return;
+  for (const k in S.links) { const out = S.links[k].out; let seen = false; for (let i = out.length - 1; i >= 0; i--) { const d = out[i].d; if (d && d.type === type) { if (seen) out[i].d = { type: 'x' }; seen = true; } } }
+}
+
+function netInit() {
+  if (LINK) return LINK;
+  LINK = NestLink.create({
+    app: 'yanivnest', version: APP_VERSION, maxPlayers: 6,
+    name: () => ST.name || T('player'),
+    persist: s => { if (!NET) return; NET.sess = s; saveNet(); },          // immediately: the message counters must survive a refresh
+    onStatus: (st) => { if (st === 'notfound') toast(T('roomNotFound')); if (st === 'full') { toast(T('roomFull')); NET = null; saveNet(); } if (st === 'error' && LINK.error === 'load') toast(T('netLoadFail')); refreshNetUI(); },
+    onCode: () => { refreshNetUI(); },
+    onJoin: () => { if (hostSide()) lobbyChanged(); },
+    onRoster: () => { if (hostSide()) { lobbyChanged(); if (CUR && CUR.mode === 'net' && CUR.G) pushViews(); } refreshNetUI(); },
+    onMessage: onNetMsg,
+    onEmoji: (e, from) => { const gs = gameSeatOf(from), one = /^\p{Extended_Pictographic}/u.test(e) && [...e].length <= 2; if (CUR && CUR.mode === 'net' && gs >= 0) bubble(gs, esc(e), one ? 'big' : '', 3500); else toast(e); },
+    onTalk: (seat, on) => { const gs = gameSeatOf(seat); if (CUR && gs >= 0) { CUR.talk[gs] = on; if (SCREEN === 'game') renderOpps(curView()); } },
+    onVoiceMsg: (url, sec, seat, mine) => {
+      if (mine) { toast(T('vmSent')); return; }
+      const gs = gameSeatOf(seat); const a = new Audio(url); a.play().catch(() => toast(T('tapToHear')));
+      if (CUR && gs >= 0) bubble(gs, '▶ <span class="ltr">' + sec + 's</span>', 'vm', 15000, url); else toast('🎤 ' + T('vmGot'));
+    },
+    onRecState: rec => { const b = $('#vRec'); b.classList.toggle('on', !!rec); b.textContent = rec ? '⏹ ' + T('stop') : '⏺'; },
+    onMicError: () => toast(T('micDenied'), 4000),
+    onAudioBlocked: () => toast(T('tapToHear')),
+    onVersion: () => toast(T('versionWarn'), 5000)
+  });
+  return LINK;
+}
+function refreshNetUI() { if (SCREEN === 'online') renderNet(); if (SCREEN === 'game' && CUR && CUR.mode === 'net') renderTop(curView()); const p = $('#netPill'); if (p) { const st = LINK ? LINK.status : 'off'; p.textContent = T('st_' + st); p.className = 'net ' + (st === 'open' ? 'ok' : st === 'off' || st === 'waiting' ? '' : 'warn'); } }
+
+/* ---------- host: lobby ---------- */
+function lobbyList() {
+  const hum = (LINK ? LINK.roster : []).slice().sort((a, b) => a.seat - b.seat).map(p => ({ kind: 'human', link: p.seat, name: p.seat === 0 ? (ST.name || T('host')) : (p.name || T('player') + ' ' + (p.seat + 1)), online: p.seat === 0 ? true : !!p.online }));
+  const bots = (NET.bots || []).map((l, i) => ({ kind: 'bot', lvl: l, name: botName(i + 1), online: true }));
+  return hum.concat(bots).slice(0, 6);
+}
+function lobbyChanged() {
+  if (!hostSide() || !LINK) return;
+  NET.lobby = { list: lobbyList(), cfg: NET.cfg, playing: !!(CUR && CUR.mode === 'net' && CUR.G && !CUR.G.over) };
+  netSendAll({ type: 'lobby', lobby: NET.lobby }); compact('lobby'); saveNetSoon(); refreshNetUI();
+}
+function netHost() {
+  if (!ST.name) { toast(T('nameFirst')); $('#netName') && $('#netName').focus(); return; }
+  netInit(); if (CUR && CUR.mode === 'net') CUR = null;
+  NET = { role: 'host', sess: null, gid: null, map: {}, bots: [], cfg: Object.assign({}, ST.rules), lobby: null };
+  LINK.host(); refreshNetUI();
+}
+function netJoin(code) {
+  code = (code || '').trim().toUpperCase();
+  if (!/^[A-Z0-9]{5}$/.test(code)) { toast(T('badCode')); return; }
+  if (!ST.name) { toast(T('nameFirst')); $('#netName') && $('#netName').focus(); return; }
+  netInit(); if (CUR && CUR.mode === 'net') CUR = null;
+  NET = { role: 'guest', sess: null, gid: null, map: {}, lobby: null, V: null };
+  LINK.join(code); refreshNetUI();
+}
+function netStart() {
+  const list = lobbyList();
+  if (list.filter(x => x.kind === 'human').length < 2) { toast(T('needFriend')); return; }
+  NET.map = {}; list.forEach((x, i) => { if (x.kind === 'human') NET.map[x.link] = i; });
+  const G = YE.newGame(list.map(x => ({ name: x.name, kind: x.kind, lvl: x.lvl })), NET.cfg);
+  NET.gid = 'n' + Date.now().toString(36);
+  newCur('net', G, 0, { id: NET.gid });
+  closeAllOv(); show('game'); lobbyChanged(); after();
+}
+function netRestart() {
+  const G0 = CUR.G; NET.gid = 'n' + Date.now().toString(36);
+  const G = YE.newGame(G0.players.map(p => ({ name: p.name, kind: p.kind, lvl: p.lvl })), G0.cfg);
+  newCur('net', G, 0, { id: NET.gid }); closeAllOv(); show('game'); after(); lobbyChanged();
+}
+function pushViews() {
+  if (!LINK || !CUR || !CUR.G) return;
+  for (const p of LINK.roster) {
+    if (p.seat === 0) continue;
+    const gs = gameSeatOf(p.seat);
+    LINK.sendTo(p.seat, { type: 'view', gid: CUR.id, lk: NET.map, V: YE.view(CUR.G, gs) });
+  }
+  compact('view'); saveNetSoon();
+}
+
+/* ---------- messages ---------- */
+function onNetMsg(d, from) {
+  if (!d || !NET) return;
+  if (hostSide()) {
+    if (d.type === 'act' && CUR && CUR.mode === 'net' && CUR.G) {
+      const gs = gameSeatOf(from); if (d.gid !== CUR.id || gs < 0) return;
+      const a = d.a, r = a.y ? YE.yaniv(CUR.G, gs) : YE.play(CUR.G, gs, a.t, a.k);
+      if (!r.ok) { pushViews(); return; }
+      beep(a.y ? 'yaniv' : 'card'); after();
+    }
+    return;
+  }
+  // guest
+  if (d.type === 'lobby') { NET.lobby = d.lobby; saveNetSoon(); refreshNetUI(); return; }
+  if (d.type === 'view') {
+    NET.gid = d.gid; NET.map = d.lk || {};
+    if (!CUR || CUR.mode !== 'net' || CUR.id !== d.gid) { newCur('net', null, d.V.me, { host: false, id: d.gid }); if (SCREEN === 'online') { closeAllOv(); show('game'); } }
+    CUR.V = d.V; CUR.me = d.V.me; CUR.pending = false; NET.V = d.V; saveNetSoon();
+    if (SCREEN === 'game') render();
+    return;
+  }
+  if (d.type === 'rep') { const rec = Object.assign({}, d.rec, { me: CUR ? CUR.me : 0 }); addReplay(rec); return; }
+  if (d.type === 'bye') { toast(T('hostLeft'), 4000); netLeave(false); if (SCREEN === 'game' || SCREEN === 'online') { closeAllOv(); show('home'); renderHome(); } }
+}
+function netLeave(sayBye) {
+  const L = LINK;
+  if (L && sayBye && hostSide()) { L.send({ type: 'bye' }); setTimeout(() => L.close(), 400); } else if (L) L.close();
+  LINK = null; NET = null; LS.del('net');
+  if (CUR && CUR.mode === 'net') CUR = null;
+}
+function netResume() {
+  if (!NET || !NET.sess) return false;
+  netInit(); LINK.resume(NET.sess);
+  if (NET.role === 'host' && NET.G) { newCur('net', NET.G, 0, { id: NET.gid }); closeAllOv(); show('game'); after(); }
+  else if (NET.role === 'guest' && NET.V) { newCur('net', null, NET.V.me, { host: false, id: NET.gid, V: NET.V }); closeAllOv(); show('game'); render(); }
+  else { show('online'); renderNet(); }
+  return true;
+}
+
+/* ---------- online screen ---------- */
+function renderNet() {
+  const B = $('#netBody'); refreshPill();
+  if (!NET) {
+    const q = new URLSearchParams(location.search).get('join') || '';
+    B.innerHTML = '<div class="card"><label class="f">' + T('yourName') + '<input id="netName" maxlength="20" value="' + esc(ST.name) + '"></label></div>'
+      + '<div class="card"><h3>' + T('newRoom') + '</h3><p class="muted">' + T('newRoomD') + '</p><button class="btn main wide" id="nHost">' + T('createRoom') + '</button></div>'
+      + '<div class="card"><h3>' + T('joinRoom') + '</h3><div class="row"><input id="nCode" maxlength="5" placeholder="AB3CD" value="' + esc(q.toUpperCase()) + '" style="text-transform:uppercase;letter-spacing:4px;text-align:center;direction:ltr;font-size:22px"><button class="btn main" id="nJoin" style="flex:.6">' + T('join') + '</button></div></div>'
+      + '<p class="muted" style="font-size:13px">' + T('netNote') + '</p>';
+    $('#netName').oninput = e => { ST.name = e.target.value.trim().slice(0, 20); saveST(); };
+    $('#nHost').onclick = netHost; $('#nJoin').onclick = () => netJoin($('#nCode').value);
+    return;
+  }
+  const host = hostSide(), code = LINK && LINK.session ? LINK.session.code : (NET.sess && NET.sess.code) || '';
+  const list = host ? lobbyList() : (NET.lobby ? NET.lobby.list : []);
+  const playing = CUR && CUR.mode === 'net' && (CUR.G || CUR.V) && !(CUR.G ? CUR.G.over : CUR.V.over);
+  let h = '<div class="card" style="text-align:center"><p class="muted">' + T('roomCode') + '</p><div class="code">' + esc(code) + '</div>'
+    + '<div class="row" style="margin-top:8px"><button class="btn" id="nWa">💬 WhatsApp</button><button class="btn" id="nCopy">🔗 ' + T('copyLink') + '</button></div></div>';
+  h += '<div class="card"><h3>' + T('players') + ' <span class="ltr">(' + list.length + '/6)</span></h3><div class="seats">' + (list.length ? list.map((x, i) => '<div class="seat"><span class="d' + (x.online ? '' : ' no') + '"></span><b>' + (x.kind === 'bot' ? '🤖 ' : '') + esc(x.name) + (x.kind === 'bot' ? ' · ' + lvlName(x.lvl) : '') + (x.link === 0 && x.kind === 'human' ? ' · ' + T('host') : '') + '</b>' + (host && x.kind === 'bot' ? '<button class="btn small" data-rm="' + (i - list.filter(y => y.kind === 'human').length) + '">✕</button>' : '') + '</div>').join('') : '<p class="muted">' + T('connecting') + '</p>') + '</div>';
+  if (host && list.length < 6) h += '<div class="row" style="margin-top:10px"><select id="nBotLvl">' + [0, 1, 2, 3].map(l => '<option value="' + l + '"' + (l === ST.botLvl ? ' selected' : '') + '>' + lvlName(l) + '</option>').join('') + '</select><button class="btn" id="nAddBot">+ 🤖 ' + T('addBot') + '</button></div>';
+  h += '</div>';
+  if (host && !playing) h += '<div class="card"><h3>' + T('rulesTitle') + '</h3><div id="nRules"></div></div><button class="btn main wide" id="nStart">' + T('startGame') + '</button>';
+  else if (!host && !playing) h += '<div class="card"><p>' + T('waitStart') + '</p>' + (NET.lobby ? '<p class="muted" style="font-size:14px">' + rulesSummary(NET.lobby.cfg) + '</p>' : '') + '</div>';
+  if (playing) h += '<button class="btn main wide" id="nBackGame">' + T('backToGame') + '</button>';
+  h += '<button class="btn wide" id="nLeave" style="border-color:var(--bad);color:var(--bad)">' + T('leaveRoom') + '</button>';
+  B.innerHTML = h;
+  const url = LINK ? LINK.inviteURL() : '';
+  $('#nWa').onclick = () => window.open('https://wa.me/?text=' + encodeURIComponent(T('inviteMsg', { n: ST.name || '', c: code }) + ' ' + url), '_blank');
+  $('#nCopy').onclick = () => { (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => toast(T('copied'))).catch(() => toast(url, 5000)); };
+  B.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { NET.bots.splice(+b.dataset.rm, 1); lobbyChanged(); });
+  const ab = $('#nAddBot'); if (ab) ab.onclick = () => { NET.bots.push(+$('#nBotLvl').value); lobbyChanged(); };
+  if ($('#nRules')) rulesEditor($('#nRules'), NET.cfg, () => { lobbyChanged(); });
+  const s = $('#nStart'); if (s) s.onclick = netStart;
+  const bg = $('#nBackGame'); if (bg) bg.onclick = () => { show('game'); render(); };
+  $('#nLeave').onclick = () => confirmBox(T('leaveQ'), T('leaveRoom'), () => { netLeave(true); renderNet(); });
+}
+function refreshPill() { const p = $('#netPill'); if (!p) return; const st = LINK ? LINK.status : 'off'; p.textContent = T('st_' + st); p.className = 'net ' + (st === 'open' ? 'ok' : st === 'off' || st === 'waiting' ? '' : 'warn'); }
+
+/* ---------- voice bar ---------- */
+const EMOJIS = ['😂', '😮', '😎', '😡', '👏', '🙏', '🔥', '🃏'];
+function bindVoice() {
+  const ptt = $('#vPtt');
+  const down = e => { e.preventDefault(); if (!LINK) return; try { ptt.setPointerCapture(e.pointerId); } catch (x) {} LINK.talk(true).then(ok => { if (ok) ptt.classList.add('on'); }); };
+  const up = () => { if (!LINK) return; ptt.classList.remove('on'); if (!LINK.openMic) LINK.talk(false); };
+  ptt.addEventListener('pointerdown', down); ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(n => ptt.addEventListener(n, up));
+  ptt.oncontextmenu = e => e.preventDefault();
+  $('#vOpen').onclick = () => { if (!LINK) return; const on = !LINK.openMic; LINK.setOpenMic(on).then(ok => { $('#vOpen').classList.toggle('on', !!(on && ok)); toast(on && ok ? T('openMicOn') : T('openMicOff')); }); };
+  $('#vRec').onclick = () => { if (!LINK) return; if (LINK.recording) LINK.recStop(); else LINK.recStart(20); };
+  $('#vEmo').onclick = () => {
+    const v = $('#voice'), old = v.querySelector('.emo'); if (old) { old.remove(); return; }
+    const p = document.createElement('div'); p.className = 'emo';
+    p.innerHTML = EMOJIS.map(e => '<button class="e">' + e + '</button>').join('') + ['ph1', 'ph2', 'ph3', 'ph4', 'ph5', 'ph6'].map(k => '<button>' + esc(T(k)) + '</button>').join('');
+    p.onclick = e => { const b = e.target.closest('button'); if (!b || !LINK) return; LINK.emoji(b.textContent); p.remove(); toast(T('sent') + ' ' + b.textContent, 1400); };
+    v.style.position = 'relative'; v.appendChild(p);
+  };
+}
+
+/* =====================================================================
+   YanivNest — screens: home · setup · settings · stats · replays · rules · about · guide
+   ===================================================================== */
+function renderHome() {
+  $('#homeFan').innerHTML = [0, 52, 14, 28].map(c => cardHTML(c)).join('');
+  $('#verLbl').textContent = 'v' + APP_VERSION;
+  const box = $('#resumeBox'); let h = '';
+  const g = LS.get('game', null);
+  if (CUR && CUR.mode !== 'net' && CUR.G && !CUR.G.over) h += '<button class="mode resume" data-res="cur"><span class="ic">▶️</span><span><b>' + T('resume') + '</b><span>' + (CUR.mode === 'cpu' ? T('mCpu') : T('mHot')) + ' · ' + T('roundN', { n: CUR.G.rn }) + '</span></span></button>';
+  else if (g && g.G && !g.G.over) h += '<button class="mode resume" data-res="local"><span class="ic">▶️</span><span><b>' + T('resume') + '</b><span>' + (g.mode === 'cpu' ? T('mCpu') : T('mHot')) + ' · ' + T('roundN', { n: g.G.rn }) + '</span></span></button>';
+  if (NET && NET.sess) h += '<button class="mode resume" data-res="net"><span class="ic">🌐</span><span><b>' + T('resumeNet') + '</b><span class="ltr">' + esc(NET.sess.code || '') + '</span></span></button>';
+  box.innerHTML = h; box.classList.toggle('hide', !h);
+  box.querySelectorAll('[data-res]').forEach(b => b.onclick = () => {
+    const r = b.dataset.res;
+    if (r === 'cur') { show('game'); render(); scheduleBot(); }
+    else if (r === 'local') resumeLocal();
+    else if (LINK && CUR && CUR.mode === 'net') { show('game'); render(); }
+    else if (LINK) { show('online'); renderNet(); }
+    else netResume();
+  });
+}
+
+/* ---------- rules editor (new game + online lobby) ---------- */
+function segHTML(id, opts, cur) { return '<div class="seg" data-seg="' + id + '">' + opts.map(o => '<button data-v="' + o[0] + '"' + (String(o[0]) === String(cur) ? ' class="on"' : '') + '>' + o[1] + '</button>').join('') + '</div>'; }
+function bindSeg(root, id, cb) { const s = root.querySelector('[data-seg="' + id + '"]'); if (!s) return; s.onclick = e => { const b = e.target.closest('button'); if (!b) return; s.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); cb(b.dataset.v); }; }
+function rulesEditor(el, cfg, onChange) {
+  el.innerHTML = '<div class="seats">'
+    + '<label class="f">' + T('rLimit') + segHTML('limit', [[7, '7'], [5, '5'], [3, '3']], cfg.limit) + '</label>'
+    + '<label class="f">' + T('rAssaf') + segHTML('assaf', [[30, '30'], [25, '25'], [20, '20']], cfg.assaf) + '</label>'
+    + '<label class="f">' + T('rMax') + segHTML('max', [[100, '100'], [150, '150'], [200, '200']], cfg.max) + '</label>'
+    + '<label class="f">' + T('rHand') + segHTML('hand', [[5, '5'], [7, '7']], cfg.hand) + '</label>'
+    + '<label class="f">' + T('rJokers') + segHTML('jokers', [[2, '2'], [0, T('none')]], cfg.jokers) + '</label>'
+    + '<div class="sw"><span>' + T('rHalve') + '</span><input type="checkbox" id="rHalve"' + (cfg.halve ? ' checked' : '') + '></div></div>';
+  ['limit', 'assaf', 'max', 'hand', 'jokers'].forEach(k => bindSeg(el, k, v => { cfg[k] = +v; onChange && onChange(); }));
+  el.querySelector('#rHalve').onchange = e => { cfg.halve = e.target.checked; onChange && onChange(); };
+}
+const rulesSummary = c => T('rulesSum', { l: c.limit, a: c.assaf, m: c.max, h: c.hand });
+
+/* ---------- setup: vs computer / one phone ---------- */
+function openSetup(mode) {
+  $('#setupTitle').textContent = mode === 'cpu' ? T('mCpu') : T('mHot');
+  const B = $('#setupBody'), cfg = Object.assign({}, ST.rules);
+  let h = '';
+  if (mode === 'cpu') {
+    h += '<div class="card"><label class="f">' + T('yourName') + '<input id="sName" maxlength="20" value="' + esc(ST.name) + '"></label></div>'
+      + '<div class="card"><h3>' + T('opponents') + '</h3>' + segHTML('botN', [[1, '1'], [2, '2'], [3, '3'], [4, '4']], ST.botN)
+      + '<h3 style="margin-top:12px">' + T('level') + '</h3>' + segHTML('lvl', [[0, T('lvl0')], [1, T('lvl1')], [2, T('lvl2')], [3, T('lvl3')]], ST.botLvl) + '<p class="muted" id="lvlD" style="font-size:14px;margin:8px 0 0"></p></div>';
+  } else {
+    h += '<div class="card"><h3>' + T('howMany') + '</h3>' + segHTML('hotN', [[2, '2'], [3, '3'], [4, '4']], ST.hotN) + '<div class="seats" id="hotNames" style="margin-top:10px"></div></div>';
+  }
+  h += '<div class="card"><h3>' + T('rulesTitle') + '</h3><div id="sRules"></div></div><button class="btn main wide" id="sGo">' + T('startGame') + '</button>';
+  B.innerHTML = h;
+  rulesEditor($('#sRules'), cfg);
+  if (mode === 'cpu') {
+    const lv = () => $('#lvlD').textContent = T('lvlD' + ST.botLvl);
+    bindSeg(B, 'botN', v => { ST.botN = +v; saveST(); }); bindSeg(B, 'lvl', v => { ST.botLvl = +v; saveST(); lv(); }); lv();
+    $('#sName').oninput = e => { ST.name = e.target.value.trim().slice(0, 20); saveST(); };
+  } else {
+    const names = () => { const el = $('#hotNames'); el.innerHTML = ''; for (let i = 0; i < ST.hotN; i++) el.innerHTML += '<input data-hn="' + i + '" maxlength="16" placeholder="' + T('player') + ' ' + (i + 1) + '" value="' + esc(ST.hotNames[i] || '') + '">'; el.querySelectorAll('input').forEach(inp => inp.oninput = () => { ST.hotNames[+inp.dataset.hn] = inp.value.trim(); saveST(); }); };
+    bindSeg(B, 'hotN', v => { ST.hotN = +v; saveST(); names(); }); names();
+  }
+  $('#sGo').onclick = () => {
+    ST.rules = Object.assign({}, cfg); saveST();
+    if (mode === 'cpu') {
+      const ps = [{ name: ST.name || T('you'), kind: 'human' }];
+      for (let i = 0; i < ST.botN; i++) ps.push({ name: botName(i), kind: 'bot', lvl: ST.botLvl });
+      startLocal('cpu', ps, cfg);
+    } else {
+      const ps = []; for (let i = 0; i < ST.hotN; i++) ps.push({ name: ST.hotNames[i] || T('player') + ' ' + (i + 1), kind: 'human' });
+      startLocal('hot', ps, cfg);
+    }
+  };
+  show('setup');
+}
+
+/* ---------- settings ---------- */
+function renderSettings() {
+  const B = $('#setBody');
+  B.innerHTML = '<div class="card"><label class="f">' + T('yourName') + '<input id="stName" maxlength="20" value="' + esc(ST.name) + '"></label></div>'
+    + '<div class="card"><h3>' + T('language') + '</h3>' + segHTML('lang', [['he', 'עברית'], ['en', 'English'], ['ru', 'Рус'], ['es', 'Esp'], ['ar', 'عربي']], ST.lang) + '</div>'
+    + '<div class="card"><h3>' + T('look') + '</h3><label class="f">' + T('theme') + segHTML('theme', THEMES.map(t => [t, T('th_' + t)]), ST.theme) + '</label>'
+    + '<label class="f" style="margin-top:10px">' + T('dayNight') + segHTML('mode', [['night', '🌙 ' + T('night')], ['day', '☀️ ' + T('day')]], ST.mode) + '</label>'
+    + '<label class="f" style="margin-top:10px">' + T('tableColor') + segHTML('board', [['felt', T('b_felt')], ['wood', T('b_wood')], ['contrast', T('b_contrast')], ['theme', T('b_theme')]], ST.board) + '</label></div>'
+    + '<div class="card"><h3>' + T('gameplay') + '</h3>'
+    + '<label class="f">' + T('speed') + segHTML('speed', [['slow', T('sp_slow')], ['normal', T('sp_normal')], ['fast', T('sp_fast')]], ST.speed) + '</label>'
+    + '<div class="sw"><span>' + T('showKnown') + '</span><input type="checkbox" data-k="showKnown"' + (ST.showKnown ? ' checked' : '') + '></div>'
+    + '<div class="sw"><span>' + T('sound') + '</span><input type="checkbox" data-k="sound"' + (ST.sound ? ' checked' : '') + '></div>'
+    + '<div class="sw"><span>' + T('vibrate') + '</span><input type="checkbox" data-k="vib"' + (ST.vib ? ' checked' : '') + '></div></div>'
+    + '<div class="card"><h3>' + T('backup') + '</h3><p class="muted" style="font-size:14px">' + T('backupD') + '</p><div class="row"><button class="btn" id="bkOut">⬇️ ' + T('exportB') + '</button><button class="btn" id="bkIn">⬆️ ' + T('importB') + '</button></div><input type="file" id="bkFile" accept="application/json,.json" class="hide"></div>'
+    + '<div class="card"><div class="row"><button class="btn" id="stGuide">🧭 ' + T('guide') + '</button><button class="btn" id="stAbout">ℹ️ ' + T('about') + '</button></div></div>'
+    + '<button class="btn wide" id="stReset" style="border-color:var(--bad);color:var(--bad)">' + T('resetAll') + '</button>';
+  $('#stName').oninput = e => { ST.name = e.target.value.trim().slice(0, 20); saveST(); };
+  bindSeg(B, 'lang', v => { ST.lang = v; saveST(); applyLang(); renderSettings(); renderHome(); });
+  ['theme', 'mode', 'board'].forEach(k => bindSeg(B, k, v => { ST[k] = v; saveST(); applyLook(); }));
+  bindSeg(B, 'speed', v => { ST.speed = v; saveST(); });
+  B.querySelectorAll('[data-k]').forEach(c => c.onchange = () => { ST[c.dataset.k] = c.checked; saveST(); });
+  $('#bkOut').onclick = exportBackup; $('#bkIn').onclick = () => $('#bkFile').click();
+  $('#bkFile').onchange = e => { const f = e.target.files[0]; if (f) importBackup(f); e.target.value = ''; };
+  $('#stGuide').onclick = () => openGuide(); $('#stAbout').onclick = () => { renderAbout(); show('about'); };
+  $('#stReset').onclick = () => confirmBox(T('resetQ1'), T('resetAll'), () => confirmBox(T('resetQ2'), T('resetYes'), () => { LS.keys().forEach(k => LS.del(k)); location.reload(); }));
+}
+function exportBackup() {
+  const data = { app: 'yanivnest', v: APP_VERSION, by: ST.name, date: new Date().toISOString(), settings: ST, stats: STATS, replays: REPLAYS, game: LS.get('game', null) };
+  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' }), name = 'yanivnest-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+  const file = typeof File !== 'undefined' ? new File([blob], name, { type: 'application/json' }) : null;
+  if (file && navigator.canShare && navigator.canShare({ files: [file] })) { navigator.share({ files: [file], title: 'YanivNest', text: T('backupBy', { n: ST.name || '' }) }).catch(() => {}); return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); toast(T('exported'));
+}
+function importBackup(f) {
+  const r = new FileReader();
+  r.onload = () => {
+    let d; try { d = JSON.parse(r.result); } catch (e) { toast(T('badFile')); return; }
+    if (!d || d.app !== 'yanivnest') { toast(T('badFile')); return; }
+    confirmBox(T('importQ', { n: d.by || '?', d: (d.date || '').slice(0, 10) }), T('importB'), () => {
+      LS.set('settings', d.settings || {}); LS.set('stats', d.stats || {}); LS.set('replays', d.replays || []); if (d.game) LS.set('game', d.game); else LS.del('game');
+      location.reload();
+    });
+  };
+  r.readAsText(f);
+}
+
+/* ---------- stats ---------- */
+function renderStats() {
+  const box = (mode, title) => {
+    const s = STATS[mode] || {}, g = s.games || 0, w = s.wins || 0;
+    const cells = mode === 'hot' ? [['games', g], ['rounds', s.rounds || 0]] : [['games', g], ['wins', w], ['winPct', g ? Math.round(100 * w / g) + '%' : '—'], ['calls', s.calls || 0], ['yanivs', s.yanivs || 0], ['caught', s.caught || 0], ['assafs', s.assafs || 0], ['rounds', s.rounds || 0]];
+    let extra = '';
+    if (mode === 'cpu') extra = '<table class="sc" style="margin-top:10px"><tr><th>' + T('level') + '</th><th>' + T('games') + '</th><th>' + T('wins') + '</th></tr>' + [0, 1, 2, 3].map(l => '<tr><td>' + lvlName(l) + '</td><td>' + (s['g' + l] || 0) + '</td><td>' + (s['w' + l] || 0) + '</td></tr>').join('') + '</table>';
+    return '<div class="card"><h3>' + title + '</h3><div class="stat">' + cells.map(c => '<div><b class="ltr">' + c[1] + '</b><span>' + T('s_' + c[0]) + '</span></div>').join('') + '</div>' + extra + '</div>';
+  };
+  const how = Object.keys(STATS.how || {}).length ? '<div class="card"><h3>' + T('howWon') + '</h3>' + ['how1', 'how2', 'how3', 'how4'].map(k => '<div class="sw"><span>' + T(k) + '</span><b class="ltr">' + (STATS.how[k] || 0) + '</b></div>').join('') + '</div>' : '';
+  $('#statBody').innerHTML = box('cpu', '🤖 ' + T('mCpu')) + box('net', '🌐 ' + T('mNet')) + box('hot', '📱 ' + T('mHot')) + how;
+}
+function renderReplays() {
+  const B = $('#repBody');
+  if (!REPLAYS.length) { B.innerHTML = '<div class="card"><p>' + T('noReplays') + '</p><button class="btn main" data-home>' + T('playNow') + '</button></div>'; B.querySelector('[data-home]').onclick = () => openSetup('cpu'); return; }
+  B.innerHTML = REPLAYS.map((r, i) => '<button class="mode" data-rp="' + i + '"><span class="ic">' + ({ cpu: '🤖', hot: '📱', net: '🌐' }[r.mode] || '🃏') + '</span><span><b>' + esc(r.players.map(p => p.name).join(' · ')) + '</b><span>' + new Date(r.date).toLocaleDateString() + ' · ' + T('winnerIs', { n: esc(r.players[r.winner] ? r.players[r.winner].name : '') }) + ' · ' + T('roundsN', { n: r.log.length }) + '</span></span></button>').join('');
+  B.querySelectorAll('[data-rp]').forEach(b => b.onclick = () => openReplay(REPLAYS[+b.dataset.rp]));
+}
+
+/* ---------- rules / about / guide ---------- */
+function openRules(inGame) {
+  $('#rulesBody').innerHTML = T('rulesHTML', { l: ST.rules.limit, a: ST.rules.assaf, m: ST.rules.max });
+  if (inGame) { const o = overlay('<div class="rules">' + T('rulesHTML', { l: CUR ? curView().cfg.limit : 7, a: CUR ? curView().cfg.assaf : 30, m: CUR ? curView().cfg.max : 100 }) + '</div><button class="btn wide" data-x>' + T('close') + '</button>'); o.querySelector('[data-x]').onclick = () => closeOv(o); return; }
+  show('rules');
+}
+function renderAbout() {
+  $('#aboutBody').innerHTML = '<div class="card" style="text-align:center"><img src="icon-192.png" alt="" width="84" height="84" style="border-radius:20px"><h2 style="margin-top:8px">YanivNest · יניב</h2><p class="muted ltr">v' + APP_VERSION + '</p></div>'
+    + '<div class="card"><div class="sw"><span>' + T('a_ver') + '</span><b class="ltr">' + APP_VERSION + '</b></div><div class="sw"><span>' + T('a_dev') + '</span><b>Barak Aflalo</b></div><div class="sw"><span>' + T('a_plat') + '</span><b class="ltr">PWA · HTML5</b></div><div class="sw"><span>' + T('a_store') + '</span><b>' + T('a_local') + '</b></div><div class="sw"><span>' + T('a_lic') + '</span><b class="ltr">© AppNest 2026</b></div></div>'
+    + '<div class="card seats"><a class="btn" href="https://appnest-store.pages.dev" target="_blank" rel="noopener" style="text-align:center;text-decoration:none">🏪 ' + T('a_storeLink') + '</a><button class="btn" id="aShare">📤 ' + T('a_share') + '</button><a class="btn" href="mailto:appnest55@gmail.com?subject=YanivNest" style="text-align:center;text-decoration:none">✉️ ' + T('a_feedback') + '</a><button class="btn" id="aGuide">🧭 ' + T('guide') + '</button><a class="btn" href="privacy_policy.html" target="_blank" style="text-align:center;text-decoration:none">🔒 ' + T('a_privacy') + '</a></div>'
+    + '<div class="card"><p class="muted" style="font-size:14px;margin:0">' + T('a_disc') + '</p></div>';
+  $('#aShare').onclick = () => { const d = { title: 'YanivNest', text: T('shareTxt', { n: ST.name || '' }), url: location.origin + location.pathname }; if (navigator.share) navigator.share(d).catch(() => {}); else (navigator.clipboard ? navigator.clipboard.writeText(d.url) : Promise.reject()).then(() => toast(T('copied'))).catch(() => toast(d.url)); };
+  $('#aGuide').onclick = () => openGuide();
+}
+function openGuide() {
+  const steps = ['g1', 'g2', 'g3', 'g4', 'g5'], icons = ['🃏', '👆', '♻️', '📣', '🎙'];
+  let i = 0;
+  const o = overlay('<div class="guide" id="gBox"></div>');
+  const draw = () => {
+    o.querySelector('#gBox').innerHTML = '<div style="font-size:52px;text-align:center">' + icons[i] + '</div><h2 style="text-align:center">' + T(steps[i] + 't') + '</h2><p style="font-size:16px">' + T(steps[i] + 'd', { l: ST.rules.limit }) + '</p>'
+      + '<div class="dots">' + steps.map((s, k) => '<i' + (k === i ? ' class="on"' : '') + '></i>').join('') + '</div>'
+      + '<div class="row"><button class="btn" data-g="skip">' + T('skip') + '</button><button class="btn main" data-g="next">' + (i < steps.length - 1 ? T('next') : T('letsPlay')) + '</button></div>';
+  };
+  o.onclick = e => { const b = e.target.closest('[data-g]'); if (!b) return; if (b.dataset.g === 'next' && i < steps.length - 1) { i++; draw(); } else { ST.guided = true; saveST(); closeOv(o); } };
+  draw();
+}
+
+/* =====================================================================
+   YanivNest — init (embedded LAST: everything above must already exist)
+   ===================================================================== */
+(function init() {
+  applyLook(); applyLang(); renderHome();
+  $('#mCpu').onclick = () => openSetup('cpu');
+  $('#mHot').onclick = () => openSetup('hot');
+  $('#mNet').onclick = () => { show('online'); renderNet(); };
+  $('#tRules').onclick = () => openRules(false);
+  $('#tStats').onclick = () => { renderStats(); show('stats'); };
+  $('#tReplays').onclick = () => { renderReplays(); show('replays'); };
+  $('#tSettings').onclick = () => { renderSettings(); show('settings'); };
+  $('#qAbout').onclick = () => { renderAbout(); show('about'); };
+  $('#qTheme').onclick = () => { ST.theme = THEMES[(THEMES.indexOf(ST.theme) + 1) % THEMES.length]; saveST(); applyLook(); toast(T('theme') + ': ' + T('th_' + ST.theme), 1200); };
+  $('#qMode').onclick = () => { ST.mode = ST.mode === 'day' ? 'night' : 'day'; saveST(); applyLook(); };
+  document.addEventListener('click', e => { if (e.target.closest('[data-home]')) { show('home'); renderHome(); } });
+  $('#netBack').onclick = () => { show('home'); renderHome(); };
+  bindGame(); bindVoice();
+  // browsers block sound until the first tap
+  addEventListener('pointerdown', () => { try { if (AC && AC.state === 'suspended') AC.resume(); } catch (e) {} }, { passive: true });
+  // invite link: ?join=CODE
+  const q = new URLSearchParams(location.search);
+  if (q.get('join')) { if (NET && NET.role === 'guest' && NET.sess && NET.sess.code === q.get('join').toUpperCase()) netResume(); else { NET = null; LS.del('net'); show('online'); renderNet(); } }
+  else if (!ST.guided) openGuide();
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+  if ('serviceWorker' in navigator && location.protocol !== 'file:' && !q.get('nosw')) navigator.serviceWorker.register('sw.js').catch(() => {});
+  window.__yaniv = { YE, YAI, get CUR() { return CUR; }, get NET() { return NET; }, get LINK() { return LINK; } };   // for automated tests
+})();
+
+
+</script>
+</body>
+</html>
