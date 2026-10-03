@@ -1,7 +1,7 @@
 /* YanivNest Service Worker — AppNest part 12 rules:
    per-file caching (no atomic addAll), network-first navigation with a timeout,
    never an error page, clean copies of redirected navigations (Cloudflare 308), skipWaiting. */
-const VERSION = 'yanivnest-v1';
+const VERSION = 'yanivnest-v2';
 const FILES = ['./', 'index.html', 'manifest.json', 'privacy_policy.html', 'icon-192.png', 'icon-512.png'];
 const OFFLINE = '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>YanivNest</title><body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#070707;color:#f3efe4;font-family:system-ui;text-align:center"><div><div style="font-size:64px">🃏</div><h2>אין חיבור לאינטרנט · You are offline</h2><p>האפליקציה תיטען כשהחיבור יחזור.</p><button onclick="location.reload()" style="font-size:18px;padding:12px 24px;border-radius:12px;border:2px solid #d4a940;background:#d4a940;color:#140f02">נסה שוב · Retry</button></div>';
 
